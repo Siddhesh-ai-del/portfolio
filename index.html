@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimal Portfolio | Developer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --dark: #1e293b;
+            --light: #f8fafc;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s ease;
+        }
+        
+        .dark {
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+        
+        .dark .bg-white {
+            background-color: #1e293b !important;
+            color: #f8fafc !important;
+        }
+        
+        .dark .text-gray-800 {
+            color: #f8fafc !important;
+        }
+        
+        .dark .bg-gray-100 {
+            background-color: #1e293b !important;
+        }
+        
+        .dark .border-gray-200 {
+            border-color: #334155 !important;
+        }
+        
+        .dark .text-gray-600 {
+            color: #94a3b8 !important;
+        }
+        
+        .nav-link {
+            position: relative;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -2px;
+            left: 0;
+            background-color: var(--primary);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .project-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .dark .project-card:hover {
+            box-shadow: 0 10px 25px -5px rgba(255, 255, 255, 0.05);
+        }
+        
+        .skill-badge {
+            transition: all 0.3s ease;
+        }
+        
+        .skill-badge:hover {
+            transform: scale(1.05);
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .dark .skill-badge:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .section {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        
+        .section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .hero-image {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <!-- Dark Mode Toggle -->
+    <button id="theme-toggle" class="fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center text-gray-700 dark:bg-gray-800 dark:text-gray-200">
+        <i class="fas fa-moon dark:hidden"></i>
+        <i class="fas fa-sun hidden dark:block"></i>
+    </button>
+    
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-sm z-40 shadow-sm dark:bg-gray-900/80 dark:border-b dark:border-gray-800">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <a href="#" class="text-2xl font-bold text-gray-800 dark:text-white">
+                    <span class="text-blue-500">P</span>ortfolio
+                </a>
+                
+                <div class="hidden md:flex space-x-8">
+                    <a href="#home" class="nav-link text-gray-600 hover:text-blue-500 dark:text-gray-300 dark:hover:text-blue-400">Home</a>
+                    <a href="#about" class="nav-link text-gray-600 hover:text-blue-500 dark:text-gray-300 dark:hover:text-blue-400">About</a>
+                    <a href="#projects" class="nav-link text-gray-600 hover:text-blue-500 dark:text-gray-300 dark:hover:text-blue-400">Projects</a>
+                    <a href="#resume" class="nav-link text-gray-600 hover:text-blue-500 dark:text-gray-300 dark:hover:text-blue-400">Resume</a>
+                    <a href="#contact" class="nav-link text-gray-600 hover:text-blue-500 dark:text-gray-300 dark:hover:text-blue-400">Contact</a>
+                </div>
+                
+                <button id="mobile-menu-button" class="md:hidden text-gray-600 dark:text-gray-300">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+            
+            <!-- Mobile Menu -->
+            <div id="mobile-menu" class="hidden md:hidden mt-4">
+                <div class="flex flex-col space-y-3">
+                    <a href="#home" class="nav-link text-gray-600 hover:text-blue-500 dark:text-gray-300 dark:hover:text-blue-400">Home</a>
+                    <a href="#about" class="nav-link text-gray-600 hover:text-blue-500 dark:text-gray-300 dark:hover:text-blue-400">About</a>
+                    <a href="#projects" class="nav-link text-gray-600 hover:text-blue-500 dark:text-gray-300 dark:hover:text-blue-400">Projects</a>
+                    <a href="#resume" class="nav-link text-gray-600 hover:text-blue-500 dark:text-gray-300 dark:hover:text-blue-400">Resume</a>
+                    <a href="#contact" class="nav-link text-gray-600 hover:text-blue-500 dark:text-gray-300 dark:hover:text-blue-400">Contact</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Hero Section -->
+    <section id="home" class="min-h-screen flex items-center pt-20 section">
+        <div class="container mx-auto px-6 py-20 md:py-32">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-12 md:mb-0">
+                    <h1 class="text-4xl md:text-6xl font-bold mb-4 dark:text-white">
+                        Hi, I'm <span class="text-blue-500">AI Engineer</span>
+                    </h1>
+                    <h2 class="text-2xl md:text-3xl font-semibold mb-6 text-gray-600 dark:text-gray-300">
+                        Machine Learning & AI Specialist
+                    </h2>
+                    <p class="text-lg text-gray-600 mb-8 max-w-lg dark:text-gray-300">
+                        I build intelligent systems that solve complex problems using cutting-edge AI technologies.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#projects" class="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300">
+                            View My Work
+                        </a>
+                        <a href="#contact" class="px-6 py-3 border border-blue-500 text-blue-500 rounded-lg hover:bg-blue-50 dark:hover:bg-gray-800 transition duration-300">
+                            Contact Me
+                        </a>
+                    </div>
+                </div>
+                <div class="md:w-1/2 flex justify-center">
+                    <div class="hero-image relative w-64 h-64 md:w-80 md:h-80 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center overflow-hidden shadow-xl">
+                        <div class="absolute inset-0 bg-blue-500 opacity-20 rounded-full"></div>
+                        <i class="fas fa-user-tie text-white text-8xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- About Section -->
+    <section id="about" class="py-20 bg-gray-100 dark:bg-gray-900 section">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4 dark:text-white">About Me</h2>
+                <div class="w-20 h-1 bg-blue-500 mx-auto"></div>
+            </div>
+            
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/3 mb-8 md:mb-0 flex justify-center">
+                    <div class="w-64 h-64 rounded-full overflow-hidden border-4 border-white shadow-lg dark:border-gray-700">
+                        <img src="https://images.unsplash.com/photo-1571171637578-41bc2dd41cd2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Profile" class="w-full h-full object-cover">
+                    </div>
+                </div>
+                
+                <div class="md:w-2/3 md:pl-12">
+                    <h3 class="text-2xl font-semibold mb-4 dark:text-white">Who am I?</h3>
+                    <p class="text-gray-600 mb-6 dark:text-gray-300">
+                        I'm a passionate full-stack developer with 5+ years of experience creating web applications. 
+                        I specialize in JavaScript technologies across the whole stack (React, Node.js, Express, MongoDB).
+                        My goal is to build products that provide pixel-perfect, performant experiences.
+                    </p>
+                    
+                    <div class="mb-8">
+                        <h4 class="text-xl font-semibold mb-4 dark:text-white">My Skills</h4>
+                        <div class="flex flex-wrap gap-3">
+                            <span class="skill-badge px-4 py-2 bg-white rounded-full text-gray-800 shadow-sm dark:bg-gray-800 dark:text-gray-200">Python</span>
+                            <span class="skill-badge px-4 py-2 bg-white rounded-full text-gray-800 shadow-sm dark:bg-gray-800 dark:text-gray-200">TensorFlow</span>
+                            <span class="skill-badge px-4 py-2 bg-white rounded-full text-gray-800 shadow-sm dark:bg-gray-800 dark:text-gray-200">PyTorch</span>
+                            <span class="skill-badge px-4 py-2 bg-white rounded-full text-gray-800 shadow-sm dark:bg-gray-800 dark:text-gray-200">NLP</span>
+                            <span class="skill-badge px-4 py-2 bg-white rounded-full text-gray-800 shadow-sm dark:bg-gray-800 dark:text-gray-200">Computer Vision</span>
+                            <span class="skill-badge px-4 py-2 bg-white rounded-full text-gray-800 shadow-sm dark:bg-gray-800 dark:text-gray-200">LLMs</span>
+                            <span class="skill-badge px-4 py-2 bg-white rounded-full text-gray-800 shadow-sm dark:bg-gray-800 dark:text-gray-200">MLOps</span>
+                            <span class="skill-badge px-4 py-2 bg-white rounded-full text-gray-800 shadow-sm dark:bg-gray-800 dark:text-gray-200">Docker</span>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="text-xl font-semibold mb-4 dark:text-white">Education</h4>
+                            <div class="space-y-4">
+                                <div>
+                                    <h5 class="font-medium dark:text-white">Master's in Computer Science</h5>
+                                    <p class="text-gray-600 dark:text-gray-400">Stanford University, 2018</p>
+                                </div>
+                                <div>
+                                    <h5 class="font-medium dark:text-white">Bachelor's in Software Engineering</h5>
+                                    <p class="text-gray-600 dark:text-gray-400">MIT, 2016</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-xl font-semibold mb-4 dark:text-white">Experience</h4>
+                            <div class="space-y-4">
+                                <div>
+                                    <h5 class="font-medium dark:text-white">Senior Developer</h5>
+                                    <p class="text-gray-600 dark:text-gray-400">Google, 2020-Present</p>
+                                </div>
+                                <div>
+                                    <h5 class="font-medium dark:text-white">Frontend Developer</h5>
+                                    <p class="text-gray-600 dark:text-gray-400">Facebook, 2018-2020</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Projects Section -->
+    <section id="projects" class="py-20 section">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4 dark:text-white">My Projects</h2>
+                <div class="w-20 h-1 bg-blue-500 mx-auto"></div>
+            </div>
+            
+            <div class="mb-8 flex justify-center">
+                <div class="inline-flex rounded-md shadow-sm" role="group">
+                    <button type="button" class="project-filter px-4 py-2 text-sm font-medium rounded-l-lg border border-gray-200 bg-white text-gray-800 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700" data-filter="all">
+                        All
+                    </button>
+                    <button type="button" class="project-filter px-4 py-2 text-sm font-medium border-t border-b border-gray-200 bg-white text-gray-800 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700" data-filter="web">
+                        Web
+                    </button>
+                    <button type="button" class="project-filter px-4 py-2 text-sm font-medium border border-gray-200 bg-white text-gray-800 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700" data-filter="mobile">
+                        Mobile
+                    </button>
+                    <button type="button" class="project-filter px-4 py-2 text-sm font-medium rounded-r-lg border border-gray-200 bg-white text-gray-800 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700" data-filter="ai">
+                        AI
+                    </button>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Project 1 -->
+                <div class="project-card bg-white rounded-xl overflow-hidden shadow-lg dark:bg-gray-800" data-category="web">
+                    <div class="h-48 bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center">
+                        <i class="fas fa-laptop-code text-white text-6xl"></i>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-xl font-bold dark:text-white">E-commerce Platform</h3>
+                            <span class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full dark:bg-blue-900 dark:text-blue-200">Web</span>
+                        </div>
+                        <p class="text-gray-600 mb-4 dark:text-gray-300">
+                            A full-featured e-commerce platform with product listings, cart functionality, and secure checkout.
+                        </p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="text-xs px-2 py-1 bg-gray-100 text-gray-800 rounded-full dark:bg-gray-700 dark:text-gray-200">React</span>
+                            <span class="text-xs px-2 py-1 bg-gray-100 text-gray-800 rounded-full dark:bg-gray-700 dark:text-gray-200">Node.js</span>
+                            <span class="text-xs px-2 py-1 bg-gray-100 text-gray-800 rounded-full dark:bg-gray-700 dark:text-gray-200">MongoDB</span>
+                        </div>
+                        <div class="flex space-x-3">
+                            <a href="#" class="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                                <i class="fab fa-github"></i> Code
+                            </a>
+                            <a href="#" class="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                                <i class="fas fa-external-link-alt"></i> Live Demo
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Project 2 -->
+                <div class="project-card bg-white rounded-xl overflow-hidden shadow-lg dark:bg-gray-800" data-category="mobile">
+                    <div class="h-48 bg-gradient-to-r from-purple-400 to-purple-600 flex items-center justify-center">
+                        <i class="fas fa-mobile-alt text-white text-6xl"></i>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-xl font-bold dark:text-white">Fitness Tracker App</h3>
+                            <span class="text-xs px-2 py-1 bg-purple-100 text-purple-800 rounded-full dark:bg-purple-900 dark:text-purple-200">Mobile</span>
+                        </div>
+                        <p class="text-gray-600 mb-4 dark:text-gray-300">
+                            A cross-platform mobile app for tracking workouts, nutrition, and progress with beautiful charts.
+                        </p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="text-xs px-2 py-1 bg-gray-100 text-gray-800 rounded-full dark:bg-gray-700 dark:text-gray-200">React Native</span>
+                            <span class="text-xs px-2 py-1 bg-gray-100 text-gray-800 rounded-full dark:bg-gray-700 dark:text-gray-200">Firebase</span>
+                            <span class="text-xs px-2 py-1 bg-gray-100 text-gray-800 rounded-full dark:bg-gray-700 dark:text-gray-200">Redux</span>
+                        </div>
+                        <div class="flex space-x-3">
+                            <a href="#" class="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                                <i class="fab fa-github"></i> Code
+                            </a>
+                            <a href="#" class="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                                <i class="fab fa-apple"></i> App Store
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Project 3 -->
+                <div class="project-card bg-white rounded-xl overflow-hidden shadow-lg dark:bg-gray-800" data-category="ai">
+                    <div class="h-48 bg-gradient-to-r from-green-400 to-green-600 flex items-center justify-center">
+                        <i class="fas fa-robot text-white text-6xl"></i>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-xl font-bold dark:text-white">AI Content Generator</h3>
+                            <span class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full dark:bg-green-900 dark:text-green-200">AI</span>
+                        </div>
+                        <p class="text-gray-600 mb-4 dark:text-gray-300">
+                            An AI-powered tool that generates high-quality content based on user prompts and preferences.
+                        </p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="text-xs px-2 py-1 bg-gray-100 text-gray-800 rounded-full dark:bg-gray-700 dark:text-gray-200">Python</span>
+                            <span class="text-xs px-2 py-1 bg-gray-100 text-gray-800 rounded-full dark:bg-gray-700 dark:text-gray-200">TensorFlow</span>
+                            <span class="text-xs px-2 py-1 bg-gray-100 text-gray-800 rounded-full dark:bg-gray-700 dark:text-gray-200">Flask</span>
+                        </div>
+                        <div class="flex space-x-3">
+                            <a href="#" class="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                                <i class="fab fa-github"></i> Code
+                            </a>
+                            <a href="#" class="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                                <i class="fas fa-external-link-alt"></i> Live Demo
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Project 4 -->
+                <div class="project-card bg-white rounded-xl overflow-hidden shadow-lg dark:bg-gray-800" data-category="web">
+                    <div class="h-48 bg-gradient-to-r from-red-400 to-red-600 flex items-center justify-center">
+                        <i class="fas fa-chart-line text-white text-6xl"></i>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-xl font-bold dark:text-white">Analytics Dashboard</h3>
+                            <span class="text-xs px-2 py-1 bg-red-100 text-red-800 rounded-full dark:bg-red-900 dark:text-red-200">Web</span>
+                        </div>
+                        <p class="text-gray-600 mb-4 dark:text-gray-300">
+                            A real-time analytics dashboard with interactive charts, data filtering, and export capabilities.
+                        </p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="text-xs px-2 py-1 bg-gray-100 text-gray-800 rounded-full dark:bg-gray-700 dark:text-gray-200">TypeScript</span>
+                            <span class="text-xs px-2 py-1 bg-gray-100 text-gray-800 rounded-full dark:bg-gray-700 dark:text-gray-200">Next.js</span>
+                            <span class="text-xs px-2 py-1 bg-gray-100 text-gray-800 rounded-full dark:bg-gray-700 dark:text-gray-200">D3.js</span>
+                        </div>
+                        <div class="flex space-x-3">
+                            <a href="#" class="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                                <i class="fab fa-github"></i> Code
+                            </a>
+                            <a href="#" class="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                                <i class="fas fa-external-link-alt"></i> Live Demo
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Project 5 -->
+                <div class="project-card bg-white rounded-xl overflow-hidden shadow-lg dark:bg-gray-800" data-category="mobile">
+                    <div class="h-48 bg-gradient-to-r from-yellow-400 to-yellow-600 flex items-center justify-center">
+                        <i class="fas fa-map-marked-alt text-white text-6xl"></i>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-xl font-bold dark:text-white">Travel Guide App</h3>
+                            <span class="text-xs px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full dark:bg-yellow-900 dark:text-yellow-200">Mobile</span>
+                        </div>
+                        <p class="text-gray-600 mb-4 dark:text-gray-300">
+                            A location-based travel guide that suggests points of interest, restaurants, and events nearby.
+                        </p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="text-xs px-2 py-1 bg-gray-100 text-gray-800 rounded-full dark:bg-gray-700 dark:text-gray-200">Flutter</span>
+                            <span class="text-xs px-2 py-1 bg-gray-100 text-gray-800 rounded-full dark:bg-gray-700 dark:text-gray-200">Google Maps API</span>
+                            <span class="text-xs px-2 py-1 bg-gray-100 text-gray-800 rounded-full dark:bg-gray-700 dark:text-gray-200">Firebase</span>
+                        </div>
+                        <div class="flex space-x-3">
+                            <a href="#" class="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                                <i class="fab fa-github"></i> Code
+                            </a>
+                            <a href="#" class="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                                <i class="fab fa-google-play"></i> Play Store
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Project 6 -->
+                <div class="project-card bg-white rounded-xl overflow-hidden shadow-lg dark:bg-gray-800" data-category="ai">
+                    <div class="h-48 bg-gradient-to-r from-indigo-400 to-indigo-600 flex items-center justify-center">
+                        <i class="fas fa-comments text-white text-6xl"></i>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-xl font-bold dark:text-white">Chatbot Assistant</h3>
+                            <span class="text-xs px-2 py-1 bg-indigo-100 text-indigo-800 rounded-full dark:bg-indigo-900 dark:text-indigo-200">AI</span>
+                        </div>
+                        <p class="text-gray-600 mb-4 dark:text-gray-300">
+                            A conversational AI assistant that can answer questions, schedule appointments, and provide recommendations.
+                        </p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="text-xs px-2 py-1 bg-gray-100 text-gray-800 rounded-full dark:bg-gray-700 dark:text-gray-200">Python</span>
+                            <span class="text-xs px-2 py-1 bg-gray-100 text-gray-800 rounded-full dark:bg-gray-700 dark:text-gray-200">NLP</span>
+                            <span class="text-xs px-2 py-1 bg-gray-100 text-gray-800 rounded-full dark:bg-gray-700 dark:text-gray-200">Dialogflow</span>
+                        </div>
+                        <div class="flex space-x-3">
+                            <a href="#" class="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                                <i class="fab fa-github"></i> Code
+                            </a>
+                            <a href="#" class="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                                <i class="fas fa-external-link-alt"></i> Live Demo
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Resume Section -->
+    <section id="resume" class="py-20 bg-gray-100 dark:bg-gray-900 section">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4 dark:text-white">My Resume</h2>
+                <div class="w-20 h-1 bg-blue-500 mx-auto"></div>
+            </div>
+            
+            <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden dark:bg-gray-800">
+                <div class="md:flex">
+                    <div class="md:w-1/3 bg-blue-500 p-8 text-white">
+                        <div class="flex justify-center mb-8">
+                            <div class="w-32 h-32 rounded-full bg-white/20 flex items-center justify-center">
+                                <i class="fas fa-user text-4xl"></i>
+                            </div>
+                        </div>
+                        
+                        <h3 class="text-xl font-bold mb-4">Personal Info</h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-center">
+                                <i class="fas fa-envelope mr-3"></i>
+                                <span>developer@example.com</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-phone mr-3"></i>
+                                <span>(123) 456-7890</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-map-marker-alt mr-3"></i>
+                                <span>San Francisco, CA</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fab fa-github mr-3"></i>
+                                <span>github.com/ai-engineer</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fab fa-linkedin mr-3"></i>
+                                <span>linkedin.com/in/ai-specialist</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-flask mr-3"></i>
+                                <span>kaggle.com/ai-researcher</span>
+                            </li>
+                        </ul>
+                        
+                        <h3 class="text-xl font-bold mt-8 mb-4">Skills</h3>
+                        <div class="space-y-2">
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span>Python</span>
+                                    <span>95%</span>
+                                </div>
+                                <div class="w-full bg-white/20 rounded-full h-2">
+                                    <div class="bg-white h-2 rounded-full" style="width: 95%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span>TensorFlow/PyTorch</span>
+                                    <span>90%</span>
+                                </div>
+                                <div class="w-full bg-white/20 rounded-full h-2">
+                                    <div class="bg-white h-2 rounded-full" style="width: 90%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span>NLP</span>
+                                    <span>88%</span>
+                                </div>
+                                <div class="w-full bg-white/20 rounded-full h-2">
+                                    <div class="bg-white h-2 rounded-full" style="width: 88%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span>Computer Vision</span>
+                                    <span>85%</span>
+                                </div>
+                                <div class="w-full bg-white/20 rounded-full h-2">
+                                    <div class="bg-white h-2 rounded-full" style="width: 85%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="md:w-2/3 p-8">
+                        <h1 class="text-3xl font-bold mb-2 dark:text-white">AI Engineer</h1>
+                        <p class="text-gray-600 mb-6 dark:text-gray-300">
+                            Experienced AI specialist with expertise in machine learning and deep learning, passionate about building intelligent systems.
+                        </p>
+                        
+                        <h2 class="text-2xl font-bold mb-4 border-b pb-2 dark:text-white dark:border-gray-700">Experience</h2>
+                        <div class="space-y-6">
+                            <div>
+                                <h3 class="text-xl font-semibold dark:text-white">Senior AI Engineer</h3>
+                                <div class="flex justify-between text-gray-600 dark:text-gray-400">
+                                    <span>OpenAI</span>
+                                    <span>2020 - Present</span>
+                                </div>
+                                <p class="mt-2 text-gray-600 dark:text-gray-300">
+                                    Led development of large language models and NLP applications. Optimized model training pipelines and deployed production AI systems.
+                                </p>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold dark:text-white">Machine Learning Engineer</h3>
+                                <div class="flex justify-between text-gray-600 dark:text-gray-400">
+                                    <span>DeepMind</span>
+                                    <span>2018 - 2020</span>
+                                </div>
+                                <p class="mt-2 text-gray-600 dark:text-gray-300">
+                                    Developed deep learning models for computer vision applications. Implemented novel neural network architectures for image recognition.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <h2 class="text-2xl font-bold mt-8 mb-4 border-b pb-2 dark:text-white dark:border-gray-700">Education</h2>
+                        <div class="space-y-6">
+                            <div>
+                                <h3 class="text-xl font-semibold dark:text-white">Master's in Computer Science</h3>
+                                <div class="flex justify-between text-gray-600 dark:text-gray-400">
+                                    <span>Stanford University</span>
+                                    <span>2016 - 2018</span>
+                                </div>
+                                <p class="mt-2 text-gray-600 dark:text-gray-300">
+                                    Specialized in Deep Learning and AI Systems. Thesis on "Transformer Architectures for Multimodal Learning".
+                                </p>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold dark:text-white">Bachelor's in Software Engineering</h3>
+                                <div class="flex justify-between text-gray-600 dark:text-gray-400">
+                                    <span>MIT</span>
+                                    <span>2012 - 2016</span>
+                                </div>
+                                <p class="mt-2 text-gray-600 dark:text-gray-300">
+                                    Graduated with honors. Focused on software architecture and distributed systems.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-6 bg-gray-50 dark:bg-gray-700 text-center">
+                    <a href="#" class="inline-flex items-center px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300">
+                        <i class="fas fa-download mr-2"></i>
+                        Download Full Resume (PDF)
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Contact Section -->
+    <section id="contact" class="py-20 section">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4 dark:text-white">Get In Touch</h2>
+                <div class="w-20 h-1 bg-blue-500 mx-auto"></div>
+            </div>
+            
+            <div class="max-w-4xl mx-auto">
+                <div class="flex flex-col md:flex-row">
+                    <div class="md:w-1/2 mb-8 md:mb-0 md:pr-8">
+                        <h3 class="text-2xl font-semibold mb-4 dark:text-white">Contact Information</h3>
+                        <p class="text-gray-600 mb-6 dark:text-gray-300">
+                            Feel free to reach out if you're looking for a developer, have a question, or just want to connect.
+                        </p>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 bg-blue-100 p-3 rounded-full text-blue-500 dark:bg-blue-900 dark:text-blue-300">
+                                    <i class="fas fa-envelope"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h4 class="font-medium dark:text-white">Email</h4>
+                                    <p class="text-gray-600 dark:text-gray-400">developer@example.com</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 bg-blue-100 p-3 rounded-full text-blue-500 dark:bg-blue-900 dark:text-blue-300">
+                                    <i class="fas fa-phone"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h4 class="font-medium dark:text-white">Phone</h4>
+                                    <p class="text-gray-600 dark:text-gray-400">(123) 456-7890</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 bg-blue-100 p-3 rounded-full text-blue-500 dark:bg-blue-900 dark:text-blue-300">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h4 class="font-medium dark:text-white">Location</h4>
+                                    <p class="text-gray-600 dark:text-gray-400">San Francisco, CA</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-8">
+                            <h4 class="text-xl font-semibold mb-4 dark:text-white">Follow Me</h4>
+                            <div class="flex space-x-4">
+                                <a href="#" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-blue-500 hover:text-white transition duration-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-blue-500">
+                                    <i class="fab fa-github"></i>
+                                </a>
+                                <a href="#" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-blue-500 hover:text-white transition duration-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-blue-500">
+                                    <i class="fab fa-linkedin-in"></i>
+                                </a>
+                                <a href="#" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-blue-500 hover:text-white transition duration-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-blue-500">
+                                    <i class="fab fa-twitter"></i>
+                                </a>
+                                <a href="#" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-blue-500 hover:text-white transition duration-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-blue-500">
+                                    <i class="fab fa-instagram"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="md:w-1/2">
+                        <form id="contact-form" class="space-y-4">
+                            <div>
+                                <label for="name" class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Name</label>
+                                <input type="text" id="name" name="name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                            </div>
+                            
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Email</label>
+                                <input type="email" id="email" name="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                            </div>
+                            
+                            <div>
+                                <label for="subject" class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Subject</label>
+                                <input type="text" id="subject" name="subject" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                            </div>
+                            
+                            <div>
+                                <label for="message" class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Message</label>
+                                <textarea id="message" name="message" rows="4" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"></textarea>
+                            </div>
+                            
+                            <button type="submit" class="w-full px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300">
+                                Send Message
+                            </button>
+                        </form>
+                        
+                        <div id="form-success" class="hidden mt-4 p-4 bg-green-100 text-green-700 rounded-lg dark:bg-green-900 dark:text-green-200">
+                            <i class="fas fa-check-circle mr-2"></i>
+                            Your message has been sent successfully!
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="py-8 bg-gray-100 dark:bg-gray-900">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <a href="#" class="text-2xl font-bold text-gray-800 dark:text-white">
+                        <span class="text-blue-500">P</span>ortfolio
+                    </a>
+                </div>
+                
+                <div class="flex space-x-6">
+                    <a href="#home" class="text-gray-600 hover:text-blue-500 dark:text-gray-400 dark:hover:text-blue-400">Home</a>
+                    <a href="#about" class="text-gray-600 hover:text-blue-500 dark:text-gray-400 dark:hover:text-blue-400">About</a>
+                    <a href="#projects" class="text-gray-600 hover:text-blue-500 dark:text-gray-400 dark:hover:text-blue-400">Projects</a>
+                    <a href="#resume" class="text-gray-600 hover:text-blue-500 dark:text-gray-400 dark:hover:text-blue-400">Resume</a>
+                    <a href="#contact" class="text-gray-600 hover:text-blue-500 dark:text-gray-400 dark:hover:text-blue-400">Contact</a>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-200 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center dark:border-gray-800">
+                <p class="text-gray-600 dark:text-gray-400">
+                    &copy; 2023 Portfolio. All rights reserved.
+                </p>
+                
+                <div class="mt-4 md:mt-0 flex space-x-4">
+                    <a href="#" class="text-gray-600 hover:text-blue-500 dark:text-gray-400 dark:hover:text-blue-400">
+                        <i class="fab fa-github"></i>
+                    </a>
+                    <a href="#" class="text-gray-600 hover:text-blue-500 dark:text-gray-400 dark:hover:text-blue-400">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <a href="#" class="text-gray-600 hover:text-blue-500 dark:text-gray-400 dark:hover:text-blue-400">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="text-gray-600 hover:text-blue-500 dark:text-gray-400 dark:hover:text-blue-400">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        // Dark mode toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+        
+        // Check for saved user preference or use system preference
+        if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            html.classList.add('dark');
+        }
+        
+        themeToggle.addEventListener('click', () => {
+            html.classList.toggle('dark');
+            localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
+        });
+        
+        // Mobile menu toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+        
+        // Project filtering
+        const filterButtons = document.querySelectorAll('.project-filter');
+        const projectCards = document.querySelectorAll('.project-card');
+        
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Update active button
+                filterButtons.forEach(btn => {
+                    btn.classList.remove('bg-blue-500', 'text-white');
+                    btn.classList.add('bg-white', 'text-gray-800', 'dark:bg-gray-800', 'dark:text-white');
+                });
+                
+                button.classList.remove('bg-white', 'text-gray-800', 'dark:bg-gray-800', 'dark:text-white');
+                button.classList.add('bg-blue-500', 'text-white');
+                
+                // Filter projects
+                const filter = button.dataset.filter;
+                
+                projectCards.forEach(card => {
+                    if (filter === 'all' || card.dataset.category === filter) {
+                        card.classList.remove('hidden');
+                    } else {
+                        card.classList.add('hidden');
+                    }
+                });
+            });
+        });
+        
+        // Form submission
+        const contactForm = document.getElementById('contact-form');
+        const formSuccess = document.getElementById('form-success');
+        
+        contactForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Here you would typically send the form data to a server
+            // For this example, we'll just show the success message
+            
+            // Reset form
+            contactForm.reset();
+            
+            // Show success message
+            formSuccess.classList.remove('hidden');
+            
+            // Hide after 5 seconds
+            setTimeout(() => {
+                formSuccess.classList.add('hidden');
+            }, 5000);
+        });
+        
+        // Scroll animation
+        const sections = document.querySelectorAll('.section');
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, {
+            threshold: 0.1
+        });
+        
+        sections.forEach(section => {
+            observer.observe(section);
+        });
+        
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                    
+                    // Close mobile menu if open
+                    if (!mobileMenu.classList.contains('hidden')) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                }
+            });
+        });
+    </script>
+<p style="border-radius: 8px; text-align: center; font-size: 12px; color: #fff; margin-top: 16px;position: fixed; left: 8px; bottom: 8px; z-index: 10; background: rgba(0, 0, 0, 0.8); padding: 4px 8px;">Made with <img src="https://enzostvs-deepsite.hf.space/logo.svg" alt="DeepSite Logo" style="width: 16px; height: 16px; vertical-align: middle;display:inline-block;margin-right:3px;filter:brightness(0) invert(1);"><a href="https://enzostvs-deepsite.hf.space" style="color: #fff;text-decoration: underline;" target="_blank" >DeepSite</a> - 🧬 <a href="https://enzostvs-deepsite.hf.space?remix=siddhesh-ai-del/portfolio" style="color: #fff;text-decoration: underline;" target="_blank" >Remix</a></p></body>
+</html>
