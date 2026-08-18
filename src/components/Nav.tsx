@@ -14,25 +14,54 @@ export default function Nav() {
   const [active, setActive] = useState('');
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  useEffect(() => {
     const ids = links.map((link) => link.href.slice(1));
+    let rafId = 0;
+    let offsets: number[] = [];
+
+    const measure = () => {
+      offsets = ids.map((id) => {
+        const el = document.getElementById(id);
+        return el ? el.offsetTop : 0;
+      });
+    };
+
     const onScroll = () => {
       const pos = window.scrollY + window.innerHeight * 0.35;
       let current = '';
-      for (const id of ids) {
-        const el = document.getElementById(id);
-        if (el && el.offsetTop <= pos) current = id;
+      for (let i = 0; i < ids.length; i++) {
+        if (offsets[i] <= pos) current = ids[i];
       }
+      setScrolled(window.scrollY > 20);
       setActive(current);
     };
+
+    const handleScroll = () => {
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(onScroll);
+    };
+
+    const handleResize = () => {
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        measure();
+        onScroll();
+      });
+    };
+
+    measure();
     onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleResize, { passive: true });
+    const handleFontsReady = () => {
+      measure();
+      onScroll();
+    };
+    document.fonts?.ready.then(handleFontsReady, () => {});
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
   return (
