@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useRef, type ReactNode, type CSSProperties } from 'react';
 
 interface ScrollRevealProps {
   children: ReactNode;
@@ -6,18 +6,11 @@ interface ScrollRevealProps {
   delay?: number;
 }
 
-const REVEAL_TRANSITION = 'opacity 0.8s cubic-bezier(0.16,1,0.3,1), transform 0.8s cubic-bezier(0.16,1,0.3,1)';
 const OBSERVER_THRESHOLD = 0.12;
 
-const revealed = (el: HTMLElement, delay: number) => {
-  el.style.transition =
-    delay > 0
-      ? `opacity 0.8s cubic-bezier(0.16,1,0.3,1) ${delay}ms, transform 0.8s cubic-bezier(0.16,1,0.3,1) ${delay}ms`
-      : REVEAL_TRANSITION;
-  el.style.opacity = '1';
-  el.style.transform = 'translateY(0)';
-};
-
+// One shared observer for every reveal on the page. Each element is
+// unobserved as soon as it fires (and again on unmount), so callbacks can
+// never stack and detached nodes are never kept alive by the map.
 const observed = new Map<Element, () => void>();
 
 const revealObserver: IntersectionObserver | null = (() => {
@@ -39,6 +32,10 @@ const revealObserver: IntersectionObserver | null = (() => {
   return io;
 })();
 
+// The reveal itself is a single class toggle: initial state, transition and
+// stagger live in .reveal / .is-revealed in index.css (delay via
+// --reveal-delay). No transition strings are built per element and the
+// reduced-motion override applies without JS involvement.
 export default function ScrollReveal({ children, className = '', delay = 0 }: ScrollRevealProps) {
   const ref = useRef<HTMLDivElement>(null);
   const hasAnimated = useRef(false);
@@ -47,16 +44,17 @@ export default function ScrollReveal({ children, className = '', delay = 0 }: Sc
     const element = ref.current;
     if (!element) return;
 
+    // No IntersectionObserver: show immediately rather than leave the
+    // content hidden forever.
     if (!revealObserver) {
-      element.style.opacity = '1';
-      element.style.transform = 'translateY(0)';
+      element.classList.add('is-revealed');
       return;
     }
 
     const reveal = () => {
       if (hasAnimated.current) return;
       hasAnimated.current = true;
-      revealed(element, delay);
+      element.classList.add('is-revealed');
     };
 
     observed.set(element, reveal);
@@ -66,13 +64,13 @@ export default function ScrollReveal({ children, className = '', delay = 0 }: Sc
       observed.delete(element);
       revealObserver.unobserve(element);
     };
-  }, [delay]);
+  }, []);
 
   return (
     <div
       ref={ref}
-      className={className}
-      style={{ opacity: 0, transform: 'translateY(24px)' }}
+      className={className ? `reveal ${className}` : 'reveal'}
+      style={delay > 0 ? ({ '--reveal-delay': `${delay}ms` } as CSSProperties) : undefined}
     >
       {children}
     </div>
