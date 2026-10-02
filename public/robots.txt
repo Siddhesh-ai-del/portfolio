@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://siddhesh-kadlag.vercel.app/sitemap.xml
