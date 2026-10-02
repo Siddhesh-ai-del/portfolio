@@ -43,7 +43,7 @@ export default function Research() {
                   <p className="text-sm text-espresso-600 leading-relaxed">{item.detail}</p>
                 </div>
                 <div className="hidden md:flex md:col-span-1 justify-end">
-                  <span className="text-espresso-300 group-hover:text-bronze-500 transition-all duration-500 zen-ease group-hover:translate-x-1">
+                  <span className="text-espresso-300 group-hover:text-bronze-500 transition-[color,transform] duration-500 zen-ease group-hover:translate-x-1">
                     →
                   </span>
                 </div>

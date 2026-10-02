@@ -104,13 +104,12 @@
 @tailwind components;
 @tailwind utilities;
 
-*,
-*::before,
-*::after {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+/* The universal margin/padding/box-sizing reset that used to live here is
+   Tailwind preflight (it already zeroes box-sizing on *, ::before, ::after
+   and margins on every UA-margined element it covers). Removing the
+   duplicate universal rule: it was matched against every element on every
+   style recalc during scroll. Element-level equality is guarded by the
+   computed-style sweep in the perf protocol. */
 
 html {
   scroll-behavior: smooth;
@@ -128,16 +127,15 @@ body {
   overflow-x: hidden;
 }
 
+/* kern/liga/calt are already on by default (and optimizeLegibility below
+   forces them anyway) — explicit font-feature-settings only made these
+   elements take the non-default shaping path. ss01/tnum/zero below are NOT
+   defaults and stay. */
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Inter', sans-serif;
   font-weight: 600;
   line-height: 1.1;
   letter-spacing: -0.02em;
-  font-feature-settings: 'kern', 'liga', 'calt';
-}
-
-p, li {
-  font-feature-settings: 'kern', 'liga';
 }
 
 .font-serif {
