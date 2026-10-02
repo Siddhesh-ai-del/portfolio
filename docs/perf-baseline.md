@@ -160,3 +160,69 @@ Candidates evaluated and rejected:
 Instrumented during attribution: exactly one IntersectionObserver in the app
 (ScrollReveal), no app rAF loops during scroll (723/6 s = harness only), and
 scroll listeners = Nav (window) + the liquid-glass lib (vendor chunk, sacred).
+
+## After-numbers — all phases (final, phase 9)
+
+Commits: `564e07e` (0) → `d2966a9` (1) → `5601a6a` (2) → `dd70d4e` (3) →
+`909e1eb` (4) → `87da4da` (5) → `2f92afb` (6 docs) → `621c4b9` (7) →
+`417bbc6` (8) → `238cf6d` (9). Every phase verified before its push; every
+phase independently revertible.
+
+### Phase-by-phase
+
+| phase | target | after (verified) |
+|---|---|---|
+| 1 build/bundle | critical-path gzip; vendor split; drop `lucide-react` | split live: `index` 24.00 / `vendor` 47.14 / `react` 185.12 KiB raw (5.78 / 15.57 / 57.67 gzip); critical path 84.60 KiB gzip (baseline 84.32 — the +0.28 is self-hosted `@font-face` CSS from phase 2) |
+| 2 fonts | mobile FCP/LCP; zero `fonts.googleapis.com` | 0 requests to Google (network audit, phase 8); CLS **0.000** (baseline 0.016); LCP 2773 → 2.2–2.3 s; 6 faces / 3 files / 99.83 KiB, `font-display: swap` |
+| 3 head/SEO | Lighthouse SEO ≥ 95 | SEO **100** desktop + mobile (baseline 91) |
+| 4 Nav | scripting ms during scroll; scroll re-renders | activeRef bailout (`909e1eb`); mobile scripting 95 → ~80 ms under the legacy flawed protocol (same-protocol A/B) |
+| 5 ScrollReveal | style recalc count during scroll | class + CSS-custom-prop driven (`87da4da`, A-B-A verified); count itself stays ≈148–153 — phase 6 shows the count is reveal-transition mechanics, not rule-driven |
+| 6 sections | paint/composite residual | sections repaint ≈1.4 ms real during scroll; residual is liquid glass + scroll dispatch (~76 %, sacred) — no section-side slack; see attribution above |
+| 7 global CSS | task total during scroll | desktop style recalc **100 → 77 ms** (A-B-A: 100 / 77 / 105, dip tracks the build); mobile flat (77 / 79 / 76); task totals within noise; computed-style sweep 0 diffs / 373 elements; pixel diff 0/0/0 |
+| 8 assets | `dist/` file count/size; favicon | `dist/` **626.65 KiB / 16 files → 433.46 KiB / 13 files** (gzip 414.62 → 232.23 KiB): latin-ext subsets dropped (no content char in U+0100–024F, never fetched — audit shows only the 3 latin woff2 requested), og.jpg 2400×1260 @ 109 KiB → 1200×630 @ 48 KiB; favicon.svg referenced correctly; pixel 0/0/0 |
+| 9 a11y/CI | a11y ≥ 95, BP 100; CI green | a11y **100/100**, BP **100/100** (footer contrast 3.46:1 → 5.31:1, pixel diff = the 502-px text row only), CI added (`.github/workflows/ci.yml`: npm ci → oxlint → tsc + build + bundle report), all steps green locally |
+
+### Final scroll state (corrected full-page protocol, post-phase-9)
+
+| metric | desktop 1440×900 1× | mobile 390×844 DPR3 4× |
+|---|---:|---:|
+| scripting | 16 ms | 32 ms |
+| task total | 306–342 ms | ~320 ms |
+| style recalc | **77 ms** (was 100; 171–183 count) | 79 ms (153 count) |
+| layout | 1 | 1 |
+| long tasks / dropped | 0 / 0 (first-scan raster hitches only) | 0 / 0 |
+| reveals | 28/28 | 28/28 |
+| glass generations | — | 2 × 256 on load, 0 on menu open |
+
+### Final Lighthouse (this session)
+
+| | desktop | mobile |
+|---|---:|---:|
+| performance | 100 | 94 (median of 16 runs, 92–97) |
+| accessibility | 100 | 100 |
+| best-practices | 100 | 100 |
+| seo | 100 | 100 |
+| CLS / FCP / LCP | — | 0 / 1.5 s / 2.2–2.3 s |
+
+Mobile performance caveat, measured not assumed: the phase-0 baseline build,
+run interleaved in the same sessions, scores a median ~97 (90–99), and its
+simulated TBT (70–100 ms) sits below ours (130–290 ms). That gap does **not**
+reproduce reliably: the same HEAD bytes measured TBT 130 and 240–250 in
+different batches, and the winner flips with run position (odd runs inflate,
+even runs deflate — 4 batches, order swapped), so Lighthouse's simulated TBT
+on this machine is treated as position/session noise.
+
+The deterministic counterweight is a direct load harness (real 4× CPU
+throttle, `Performance.getMetrics` deltas + in-page `longtask`, 6 s after
+load, 3 interleaved rounds across four builds):
+
+| build | script CPU | task CPU | layout | recalc | blocking | longest task |
+|---|---:|---:|---:|---:|---:|---:|
+| HEAD (phase 9) | 0.14 s | 0.30 s | 6 | 39 | **64 ms** | **114 ms** |
+| phase 0 baseline | 0.16 s | 0.44 s | 11 | 42 | 83 ms | 133 ms |
+| after phase 3 | 0.14 s | 0.33 s | 6 | 41 | 86 ms | 136 ms |
+| after phase 5 | 0.16 s | 0.36 s | 6 | 39 | 99 ms | 149 ms |
+
+HEAD is better than the baseline on every direct axis (−23 % task CPU,
+−23 % blocking, −45 % layout). No real load-time regression found; the
+Lighthouse score delta is isolated to its network/CPU simulation model.
