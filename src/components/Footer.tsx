@@ -43,7 +43,7 @@ export default function Footer() {
           <p className="font-mono text-[11px] tracking-[0.14em] uppercase text-espresso-600">
             © {year} Siddhesh Kadlag
           </p>
-          <p className="font-mono text-[11px] tracking-[0.14em] uppercase text-espresso-500">
+          <p className="font-mono text-[11px] tracking-[0.14em] uppercase text-espresso-600">
             Built with care and caffeine
           </p>
         </div>
