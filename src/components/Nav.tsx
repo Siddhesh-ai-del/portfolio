@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Glass } from '@samasante/liquid-glass';
 
 // Inlined from lucide-react (Menu/X at size 20) — byte-identical markup to
@@ -70,6 +70,11 @@ const glassEdge =
 export default function Nav() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [active, setActive] = useState('');
+  // Scroll fires setActive ~60x/s while only a handful of section changes
+  // actually happen per pass. The ref bails out before React's dispatcher,
+  // so an unchanged section never queues work — we don't lean on React's
+  // value-equality eager-bailout (an implementation detail) for that.
+  const activeRef = useRef('');
   const [isMobile, setIsMobile] = useState(
     () => typeof window !== 'undefined' && window.matchMedia(MOBILE_QUERY).matches
   );
@@ -103,6 +108,8 @@ export default function Nav() {
       for (let i = 0; i < ids.length; i++) {
         if (offsets[i] <= pos) current = ids[i];
       }
+      if (current === activeRef.current) return;
+      activeRef.current = current;
       setActive(current);
     };
 
