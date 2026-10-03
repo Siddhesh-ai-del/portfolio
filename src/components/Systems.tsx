@@ -1,5 +1,10 @@
 import ScrollReveal from './ScrollReveal';
 
+// Section data — module-level case-study records rendered as hairline rows.
+// Field meanings: `roman` = decorative serif index (I/II/III, not a list
+// marker), `summary` = one-line pitch, `challenge` = problem statement shown
+// under a mono label, `tech` = comma-separated stack string, `metric1/2` =
+// the two headline stats under top rules, `repo` = outbound project link.
 const caseStudies = [
   {
     roman: 'I',
@@ -33,10 +38,14 @@ const caseStudies = [
   },
 ];
 
+// Systems — section /02. Uses the shared section pattern (mono "/0N" eyebrow →
+// 12-col header row → hairline list) but sits on bg-paper-deep, a slightly
+// darker paper tone that alternates the page rhythm between sections.
 export default function Systems() {
   return (
     <section id="systems" className="py-24 md:py-32 bg-paper-deep px-6 sm:px-8">
       <div className="max-w-7xl mx-auto">
+        {/* Header row: 2-col eyebrow, 8-col title, 2-col rule (desktop only). */}
         <ScrollReveal>
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-baseline mb-14 md:mb-24">
             <div className="md:col-span-2">
@@ -53,8 +62,15 @@ export default function Systems() {
 
         <div className="border-t border-hairline">
           {caseStudies.map((study, i) => (
+            // Stagger: i * 100ms — the slowest ladder on the page, giving the
+            // heavier case-study rows a more deliberate entrance.
+            // NOTE: `zen-ease` is a no-op class (config defines `ease-zen`);
+            // transitions fall back to the default timing function.
             <ScrollReveal key={i} delay={i * 100}>
               <div className="group grid grid-cols-1 md:grid-cols-12 gap-6 py-12 md:py-16 border-b border-hairline">
+                {/* 1/5/4/2 column split: roman numeral → title+summary+challenge
+                    → stack+metrics → repo link. Mobile stacks them in the
+                    same reading order. */}
                 <div className="md:col-span-1">
                   <span className="font-serif italic text-xl text-sage-300 group-hover:text-bronze-500 transition-colors duration-500 zen-ease">
                     {study.roman}
@@ -81,6 +97,8 @@ export default function Systems() {
                     Stack
                   </span>
                   <p className="text-espresso-800 text-sm leading-relaxed">{study.tech}</p>
+                  {/* Two metric slots: flex-1 + top hairline makes them read as
+                      ruled stat cells that fill the column evenly. */}
                   <div className="mt-8 flex items-end gap-10">
                     <div className="flex-1 border-t border-hairline pt-4">
                       <span className="text-3xl font-medium tracking-[-0.02em] text-ink block">{study.metric1}</span>

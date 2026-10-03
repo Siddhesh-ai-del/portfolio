@@ -1,5 +1,7 @@
 import ScrollReveal from './ScrollReveal';
 
+// Section data — skill groups; `title` is the mono column header, `tools` the
+// large hover-highlighted entries beneath it. Array order == display order.
 const stackCategories = [
   { title: 'Languages', tools: ['Python', 'C++ (Basic)', 'TypeScript'] },
   { title: 'AI & Data Science', tools: ['NumPy', 'Machine Learning', 'Gemini AI'] },
@@ -9,10 +11,15 @@ const stackCategories = [
   { title: 'Operating Systems', tools: ['Linux (CachyOS)', 'Windows'] },
 ];
 
+// Stack & Infrastructure — section /04. Same shared header pattern (mono
+// "/0N" eyebrow → 12-col header → rule) but the content is a 3-column card
+// grid instead of a list: each category gets its own top hairline column.
+// bg-paper-deep alternates the surface with the plain-paper sections.
 export default function Stack() {
   return (
     <section id="stack" className="py-24 md:py-32 bg-paper-deep px-6 sm:px-8">
       <div className="max-w-7xl mx-auto">
+        {/* Header row: 2-col eyebrow, 8-col title, 2-col rule (desktop only). */}
         <ScrollReveal>
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-baseline mb-14 md:mb-24">
             <div className="md:col-span-2">
@@ -27,10 +34,17 @@ export default function Stack() {
           </div>
         </ScrollReveal>
 
+        {/* 3-up grid; wide column gutters (gap-x-16) let each category read as
+            its own ruled column. */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-x-16 gap-y-14">
           {stackCategories.map((cat, i) => (
+            // Stagger: i * 60ms — columns cascade left-to-right, top-to-bottom.
+            // NOTE: `zen-ease` below is a no-op class (config defines
+            // `ease-zen`); transitions fall back to the default timing.
             <ScrollReveal key={i} delay={i * 60}>
               <div className="border-t border-hairline pt-6">
+                {/* Header: category name left, zero-padded index (01…06) right;
+                    i + 1 because arrays are 0-based but labels are 1-based. */}
                 <div className="flex items-baseline justify-between mb-6">
                   <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-espresso-600">
                     {cat.title}

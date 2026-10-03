@@ -1,5 +1,9 @@
 import ScrollReveal from './ScrollReveal';
 
+// Section data — one record per credential.
+// `name`/`issuer`/`date` render as the primary line plus "issuer · year" meta;
+// `id` is the credential label (role/participation level) in the middle column;
+// `verify` is the issuer's verification URL behind the "Verify →" link.
 const certifications = [
   {
     name: 'Stanford Code in Place 2025',
@@ -17,10 +21,14 @@ const certifications = [
   },
 ];
 
+// Certifications & Licensing — section /05. Shared header pattern, but the
+// section deliberately has NO id: it's not one of the scroll-spy targets in
+// Nav's `links` array, so there's no anchor to set.
 export default function Certifications() {
   return (
     <section className="py-24 md:py-36 px-6 sm:px-8">
       <div className="max-w-7xl mx-auto">
+        {/* Header row: 2-col eyebrow, 8-col title, 2-col rule (desktop only). */}
         <ScrollReveal>
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-baseline mb-14 md:mb-24">
             <div className="md:col-span-2">
@@ -37,8 +45,14 @@ export default function Certifications() {
 
         <div className="border-t border-hairline">
           {certifications.map((cert, i) => (
+            // Stagger: i * 80ms, matching the Focus ladder.
+            // NOTE: `zen-ease` below is a no-op class (config defines
+            // `ease-zen`); transitions fall back to the default timing.
             <ScrollReveal key={i} delay={i * 80}>
               <div className="group grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 items-center py-6 md:py-8 border-b border-hairline">
+                {/* 6/3/3 split: credential + meta → mono role label → verify
+                    link; items-center keeps the short right columns aligned
+                    with the two-line left block. */}
                 <div className="md:col-span-6">
                   <h3 className="font-medium text-xl md:text-2xl tracking-[-0.015em] text-ink group-hover:text-bronze-500 transition-colors duration-500 zen-ease">
                     {cert.name}

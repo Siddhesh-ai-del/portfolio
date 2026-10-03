@@ -1,3 +1,6 @@
+// Node-side project — type-checks the Vite config file itself (ES2023 +
+// node types, nodenext resolution). Kept separate from the app project so
+// config-file Node APIs don't leak into the browser type environment.
 {
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",

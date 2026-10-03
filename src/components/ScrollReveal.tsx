@@ -1,8 +1,22 @@
+// ScrollReveal — wrapper that fades/slides its children in once, the first
+// time they cross the viewport. Architecture: ONE module-level
+// IntersectionObserver (created lazily-safe at import) is shared by every
+// reveal on the page, so the page never pays per-element observer cost.
+// Contract with the `observed` Map: register (set) on mount, unregister
+// (delete) on unmount AND on first fire — a fired element is deleted before
+// its callback runs, so each element can only ever reveal once and detached
+// nodes are never retained. The component only toggles a class; all timing
+// lives in CSS (see .reveal / .is-revealed in index.css), which keeps
+// transition strings out of JS and lets the reduced-motion override work
+// without any JS involvement.
 import { useEffect, useRef, type ReactNode, type CSSProperties } from 'react';
 
 interface ScrollRevealProps {
   children: ReactNode;
+  /** Extra class names merged onto the wrapper's base `reveal` class. */
   className?: string;
+  /** Stagger offset in ms, written to the `--reveal-delay` custom property
+      that `.reveal`'s transition reads. 0 omits the style entirely. */
   delay?: number;
 }
 

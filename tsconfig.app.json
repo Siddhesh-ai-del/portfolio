@@ -1,3 +1,6 @@
+// Browser project — type-checks everything under src/ for the Vite app.
+// noEmit + bundler moduleResolution: tsc is a checker only; Vite owns the
+// actual transpile/bundle. See tsconfig.json for the solution references.
 {
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",

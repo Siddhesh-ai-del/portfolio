@@ -1,5 +1,8 @@
 import ScrollReveal from './ScrollReveal';
 
+// Section content — kept outside the component so it's constant data, not
+// render-time allocation. `num` is the large ghost numeral shown per row;
+// `title`/`desc` map to the h3 + paragraph in the list below.
 const focusAreas = [
   { num: '01', title: 'Artificial Intelligence', desc: 'Building practical AI projects with Python, NumPy, and machine learning fundamentals.' },
   { num: '02', title: 'Local LLMs & AI Tooling', desc: 'Running and experimenting with local models using Ollama, Google AI Studio, and Gemini.' },
@@ -7,10 +10,16 @@ const focusAreas = [
   { num: '04', title: 'Software Engineering', desc: 'Developing practical applications with Git, GitHub, React, and TypeScript.' },
 ];
 
+// Focus — section /01. Follows the shared section pattern used across the
+// page: mono "/0N" eyebrow → 12-col header row (title + trailing hairline) →
+// hairline-delimited content list. Rows are separated with border-t/border-b
+// hairlines instead of card backgrounds to keep the editorial, print-like look.
 export default function Focus() {
   return (
     <section id="focus" className="py-24 md:py-36 px-6 sm:px-8">
       <div className="max-w-7xl mx-auto">
+        {/* Header row: 2-col eyebrow, 8-col title, 2-col decorative rule that
+            hides on mobile (hidden md:block) where there's no room for it. */}
         <ScrollReveal>
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-baseline mb-14 md:mb-24">
             <div className="md:col-span-2">
@@ -27,6 +36,11 @@ export default function Focus() {
 
         <div className="border-t border-hairline">
           {focusAreas.map((area, i) => (
+            // Stagger: i * 80ms so rows cascade as they enter the viewport;
+            // keying by index is safe because the array never changes.
+            // NOTE: `zen-ease` below is a no-op class — tailwind.config.ts
+            // defines `zen` → `ease-zen` (correct, used elsewhere); the
+            // transition still applies with the default timing function.
             <ScrollReveal key={i} delay={i * 80}>
               <div className="group grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 items-baseline py-10 md:py-14 border-b border-hairline cursor-default">
                 <div className="md:col-span-2">

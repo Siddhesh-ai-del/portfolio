@@ -1,6 +1,8 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <!-- Base document meta — charset/viewport first (spec order matters for
+         older parsers), then icon, then the SEO/social block below. -->
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -31,6 +33,8 @@
     <meta name="twitter:image" content="https://siddhesh-kadlag.vercel.app/og.jpg" />
   </head>
   <body>
+    <!-- React mount node — resolved by src/main.tsx; the module script is
+         the bundle entry Vite rewrites to the hashed asset on build. -->
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

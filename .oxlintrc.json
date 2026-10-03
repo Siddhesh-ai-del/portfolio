@@ -1,3 +1,11 @@
+// oxlint configuration — enables the React, TypeScript, and OXC plugin rule
+// sets with a deliberately small custom-rule footprint: `rules-of-hooks` is
+// elevated to error (hook misuse is a real correctness bug class in this
+// codebase's Nav/ScrollReveal effects), `only-export-components` stays a
+// warning with constant-export allowance (module-level constants like
+// `links`/`focusAreas` live beside their default exports). Everything else
+// uses oxlint's built-in defaults. JSON with comments is accepted by
+// oxlint's config parser (jsonc).
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "plugins": ["react", "typescript", "oxc"],

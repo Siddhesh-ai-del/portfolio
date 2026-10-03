@@ -1,3 +1,7 @@
+// TypeScript solution root — `files: []` means this file compiles nothing
+// itself; it only references the two real projects: tsconfig.app.json
+// (browser/src code) and tsconfig.node.json (Vite/Tailwind config files).
+// `tsc -b` (used by `npm run build`) builds both via these references.
 {
   "files": [],
   "references": [

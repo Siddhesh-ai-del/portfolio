@@ -1,3 +1,11 @@
+// Nav — fixed floating navigation, always on top (z-50) and
+// pointer-events-none at the <nav> level so only the glass pill and mobile
+// menu itself intercept clicks/pointer input. Composed of three pieces:
+//   1. the desktop pill (Glass lens + wordmark + numbered section links),
+//   2. the mobile hamburger button,
+//   3. the mobile drop-down menu, pre-mounted during idle time.
+// Behavior lives in three effects: scroll-spy with rAF-throttled updates,
+// mobile-breakpoint sync, and idle pre-arming of the menu (see each below).
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { Glass } from '@samasante/liquid-glass';
 
@@ -40,6 +48,9 @@ const links = [
   { label: 'Systems', href: '#systems' },
   { label: 'Activities', href: '#research' },
   { label: 'Stack', href: '#stack' },
+  // Deliberately only 4 entries: Certifications has no section id (not a
+  // scroll-spy target) and the footer's #connect is an external anchor, so
+  // neither belongs in the pill's numbered link row.
 ];
 
 // Lens look for the floating nav glass. Thin frost (2px, not the library's
@@ -68,6 +79,8 @@ const glassEdge =
   'rounded-full border border-white/60 shadow-[0_12px_40px_-12px_rgba(32,30,27,0.18)]';
 
 export default function Nav() {
+  // menuOpen: user-toggled mobile menu visibility.
+  // active: current scroll-spy section id ("" near the top of the page).
   const [menuOpen, setMenuOpen] = useState(false);
   const [active, setActive] = useState('');
   // Scroll fires setActive ~60x/s while only a handful of section changes
@@ -78,6 +91,8 @@ export default function Nav() {
   const [isMobile, setIsMobile] = useState(
     () => typeof window !== 'undefined' && window.matchMedia(MOBILE_QUERY).matches
   );
+  // menuArmed: the closed menu has been pre-mounted (its glass map generated)
+  // at least once — see the idle pre-mount effect below.
   const [menuArmed, setMenuArmed] = useState(false);
 
   // Smaller displacement map on phones only — see MOBILE_MAP_SIZE above.
@@ -90,11 +105,19 @@ export default function Nav() {
     [isMobile]
   );
 
+  // Effect 1 — scroll-spy. Section offsets are measured once (and re-measured
+  // on resize/fonts-ready, since late-loading fonts shift layout), then every
+  // scroll event is coalesced into at most one rAF callback. The activation
+  // line sits at 35% of the viewport height so a section counts as "current"
+  // once it's comfortably past the top. `passive: true` keeps scrolling
+  // smooth; cleanup cancels the pending frame and removes both listeners.
   useEffect(() => {
     const ids = links.map((link) => link.href.slice(1));
     let rafId = 0;
     let offsets: number[] = [];
 
+    // (Re)read each target's document offset; 0 for missing elements so an
+    // unmapped id simply never wins the comparison below.
     const measure = () => {
       offsets = ids.map((id) => {
         const el = document.getElementById(id);
@@ -102,6 +125,8 @@ export default function Nav() {
       });
     };
 
+    // Pick the last section whose top has crossed the activation line —
+    // ids are in page order, so "last crossed" == "deepest one in view".
     const onScroll = () => {
       const pos = window.scrollY + window.innerHeight * 0.35;
       let current = '';
@@ -118,6 +143,8 @@ export default function Nav() {
       rafId = requestAnimationFrame(onScroll);
     };
 
+    // Resize invalidates offsets AND the activation line, so remeasure
+    // inside the same rAF slot rather than only re-running onScroll.
     const handleResize = () => {
       cancelAnimationFrame(rafId);
       rafId = requestAnimationFrame(() => {
@@ -130,6 +157,9 @@ export default function Nav() {
     onScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('resize', handleResize, { passive: true });
+    // Web fonts swap in after first paint and move every section; remeasure
+    // once fonts settle. The rejection handler keeps a font error from
+    // becoming an unhandled rejection (offsets would just stay as measured).
     const handleFontsReady = () => {
       measure();
       onScroll();
@@ -142,8 +172,9 @@ export default function Nav() {
     };
   }, []);
 
-  // Track the mobile breakpoint so the lens regenerates with the right map
-  // size when the viewport crosses it (rotation, split-screen).
+  // Effect 2 — mobile breakpoint sync. Track the mobile breakpoint so the
+  // lens regenerates with the right map size when the viewport crosses it
+  // (rotation, split-screen).
   useEffect(() => {
     const mq = window.matchMedia(MOBILE_QUERY);
     setIsMobile(mq.matches); // close the race with the lazy initializer
@@ -152,11 +183,12 @@ export default function Nav() {
     return () => mq.removeEventListener('change', onChange);
   }, []);
 
-  // Pre-mount the closed menu so its displacement map is generated during
-  // idle time, after fonts settle, instead of on the tap that opens it —
-  // a fresh generation stalls that open by ~100ms under 4× throttle. Hidden
-  // with `visibility` (not `display`) so it keeps a real layout box; on
-  // desktop `md:hidden` makes it display:none, so this generates nothing.
+  // Effect 3 — idle pre-mount of the closed menu. Pre-mount the closed menu
+  // so its displacement map is generated during idle time, after fonts settle,
+  // instead of on the tap that opens it — a fresh generation stalls that open
+  // by ~100ms under 4× throttle. Hidden with `visibility` (not `display`) so
+  // it keeps a real layout box; on desktop `md:hidden` makes it display:none,
+  // so this generates nothing.
   useEffect(() => {
     let cancelled = false;
     let idleId: number | undefined;
@@ -204,6 +236,10 @@ export default function Nav() {
               Siddhesh Kadlag
             </a>
 
+            {/* Desktop branch — hidden below md, where the hamburger takes
+                over. Each link carries a numbered bronze prefix (matching the
+                section eyebrows) and an ::after rule-bar that widens to full
+                width when active or hovered. */}
             <div className="hidden md:flex items-center gap-8">
               {links.map((link, i) => {
                 const isActive = active === link.href.slice(1);
@@ -220,6 +256,8 @@ export default function Nav() {
               })}
             </div>
 
+            {/* Mobile branch — hamburger swaps Menu/X icons with the open
+                state; aria-expanded mirrors menuOpen for screen readers. */}
             <button
               className="md:hidden text-ink p-1 -mr-1 rounded-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-bronze-500"
               onClick={() => setMenuOpen(!menuOpen)}
@@ -232,6 +270,11 @@ export default function Nav() {
         </Glass>
       </div>
 
+      {/* Mobile menu panel — stays MOUNTED after the first idle arm so its
+          glass map is only ever generated once. When closed it's `invisible`
+          + aria-hidden + inert: no layout shift on open, and it can't be
+          focused or announced. Links close the menu on click so a selection
+          doesn't leave the panel covering the target section. */}
       {(menuOpen || menuArmed) && (
         <div
           className={`md:hidden flex justify-center px-4 pt-2 ${menuOpen ? '' : 'invisible'}`}

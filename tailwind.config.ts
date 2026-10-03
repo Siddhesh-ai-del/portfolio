@@ -1,10 +1,17 @@
+// Tailwind design tokens — maps the site's editorial palette and type scale
+// to utility classes. `extend` (not `theme`) so Tailwind's default palette
+// stays available alongside these. Scanned content globs below decide which
+// classes are emitted, so a class written only in index.css won't be generated.
 import type { Config } from 'tailwindcss';
 
 const config: Config = {
+  // index.html + src: the only two places class names appear.
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
       colors: {
+        // paper/ink — page surface + primary text (bg-paper-deep alternates
+        // section backgrounds; ink-soft is the muted heading variant).
         paper: {
           DEFAULT: '#FAF7F0',
           deep: '#F3EEE1',
@@ -13,9 +20,12 @@ const config: Config = {
           DEFAULT: '#201E1B',
           soft: '#3A3631',
         },
+        // hairline — the 1px rules that separate sections/rows everywhere.
         hairline: {
           DEFAULT: '#E7E0D0',
         },
+        // bronze — accent for eyebrows, hover states, links, and the
+        // availability dot; 300–600 gives a usable contrast ramp.
         bronze: {
           300: '#CE9C6D',
           400: '#BD7A44',
@@ -28,6 +38,8 @@ const config: Config = {
           200: '#F2EDE2',
           300: '#EBE4D5',
         },
+        // espresso — secondary text ramp; higher number = darker = more
+        // contrast (espresso-700/800 carry body copy, 300–500 decoration).
         espresso: {
           900: '#2C2A29',
           800: '#3D3A37',
@@ -37,6 +49,7 @@ const config: Config = {
           400: '#A49F97',
           300: '#BFBBB4',
         },
+        // sage — muted green-grey for large ghost numerals and quiet accents.
         sage: {
           200: '#D8DDCC',
           300: '#C2CBB3',
@@ -50,6 +63,8 @@ const config: Config = {
           400: '#C9BCA1',
         },
       },
+      // Family order matters: these become .font-serif/.font-sans/.font-mono,
+      // matching the @font-face declarations in src/index.css (latin subsets).
       fontFamily: {
         serif: ['"Cormorant Garamond"', 'serif'],
         sans: ['"Inter"', 'sans-serif'],
@@ -57,8 +72,13 @@ const config: Config = {
       },
       letterSpacing: {
         'wide-sm': '0.08em',
+        // ultrawide — the 0.22em tracking used by all uppercase mono labels.
         'ultrawide': '0.22em',
       },
+      // ease-zen — the shared deceleration curve (fast out, settle in) used by
+      // essentially every color/transform transition on the page. NOTE: some
+      // components reference a nonexistent `zen-ease` class, which Tailwind
+      // never generates — those transitions fall back to the default timing.
       transitionTimingFunction: {
         zen: 'cubic-bezier(0.16,1,0.3,1)',
       },
