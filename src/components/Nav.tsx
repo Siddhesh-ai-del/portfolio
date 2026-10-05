@@ -53,10 +53,13 @@ const links = [
   // neither belongs in the pill's numbered link row.
 ];
 
-// Lens look for the floating nav glass. Thin frost (2px, not the library's
-// frosted-glass default of 6) + a faint white veil so the links stay legible
-// while the page refracts underneath.
-const pillOptics = { frost: 2, brightness: 0.1 };
+// Lens look for the floating nav glass: clear liquid glass rather than a
+// frosted slab. No frost and no white veil — the page stays sharp and reads
+// straight through the pill — with the material's default, gentle refraction
+// (library-default strength / bend / dispersion) so the background eases
+// through the contour with only a soft colour fringe. Link contrast comes
+// from the text colours, not from a milky backing.
+const pillOptics = { frost: 0, brightness: 0, strength: 0.05, bend: 0.45, dispersion: 0.32 };
 // The mobile menu reads as denser text over moving content: frost it a touch
 // more and veil a touch stronger.
 const menuOptics = { frost: 3, brightness: 0.14 };
@@ -72,7 +75,9 @@ const MOBILE_MAP_SIZE = 256;
 // rem-based to track Tailwind's md (48rem) exactly under non-16px roots.
 const MOBILE_QUERY = '(max-width: 47.9375rem)';
 
-const pillTint = { background: 'rgba(255, 255, 255, 0.42)' };
+// A trace of white body so the pill's silhouette survives over equally light
+// content; otherwise it's pure glass.
+const pillTint = { background: 'rgba(255, 255, 255, 0.06)' };
 const menuTint = { background: 'rgba(255, 255, 255, 0.55)' };
 
 const glassEdge =
