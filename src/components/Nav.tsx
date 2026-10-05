@@ -60,9 +60,10 @@ const links = [
 // through the contour with only a soft colour fringe. Link contrast comes
 // from the text colours, not from a milky backing.
 const pillOptics = { frost: 0, brightness: 0, strength: 0.05, bend: 0.45, dispersion: 0.32 };
-// The mobile menu reads as denser text over moving content: frost it a touch
-// more and veil a touch stronger.
-const menuOptics = { frost: 3, brightness: 0.14 };
+// The mobile drop-down is the same clear glass as the pill — no frost, no
+// veil, the same gentle default refraction — so the two read as one material
+// instead of a clear bar opening into a frosted panel.
+const menuOptics = { frost: 0, brightness: 0, strength: 0.05, bend: 0.45, dispersion: 0.32 };
 
 // Displacement-map resolution for phones (the Tailwind `md` breakpoint). The
 // map generator runs in O(mapSize²): at the default 512 every map costs ~90ms
@@ -78,7 +79,9 @@ const MOBILE_QUERY = '(max-width: 47.9375rem)';
 // A trace of white body so the pill's silhouette survives over equally light
 // content; otherwise it's pure glass.
 const pillTint = { background: 'rgba(255, 255, 255, 0.06)' };
-const menuTint = { background: 'rgba(255, 255, 255, 0.55)' };
+// Same trace of white body as the pill — just enough for the panel's
+// silhouette over equally light content.
+const menuTint = { background: 'rgba(255, 255, 255, 0.06)' };
 
 const glassEdge =
   'rounded-full border border-white/60 shadow-[0_12px_40px_-12px_rgba(32,30,27,0.18)]';
