@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- posts.html — one of the three section pages (a Vite MPA entry).
+         Head mirrors index.html with page-specific title/copy; the React
+         entry is src/section.tsx, which reads the data-section attribute
+         on <body> to decide what to render. -->
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Above-the-fold faces, preloaded from the same origin; @font-face rules
+         live in the bundled CSS (no JS/media swap needed, works without JS). -->
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/inter-latin.woff2" crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/cormorant-garamond-400-italic-latin.woff2" crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/ibm-plex-mono-400-latin.woff2" crossorigin />
+    <meta name="description" content="Articles and write-ups by Siddhesh Kadlag." />
+    <meta name="theme-color" content="#FAF7F0" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://siddhesh-kadlag.vercel.app/posts.html" />
+    <title>Posts — Siddhesh Kadlag</title>
+
+    <!-- Open Graph / LinkedIn, Slack, etc. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Siddhesh Kadlag" />
+    <meta property="og:url" content="https://siddhesh-kadlag.vercel.app/posts.html" />
+    <meta property="og:title" content="Posts — Siddhesh Kadlag" />
+    <meta property="og:description" content="Articles and write-ups by Siddhesh Kadlag." />
+    <meta property="og:image" content="https://siddhesh-kadlag.vercel.app/og.jpg" />
+    <meta property="og:image:alt" content="Portfolio hero: Siddhesh Kadlag — AI & Data Science" />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Posts — Siddhesh Kadlag" />
+    <meta name="twitter:description" content="Articles and write-ups by Siddhesh Kadlag." />
+    <meta name="twitter:image" content="https://siddhesh-kadlag.vercel.app/og.jpg" />
+  </head>
+  <body data-section="posts">
+    <!-- React mount node — resolved by src/main.tsx; the module script is
+         the bundle entry Vite rewrites to the hashed asset on build. -->
+    <div id="root"></div>
+    <script type="module" src="/src/section.tsx"></script>
+  </body>
+</html>

@@ -1,7 +1,11 @@
-// Root composition — the entire single-page portfolio in section order.
-// No router and no state: the page is one scroll document, so App's only job
-// is to stack the sections and keep <main> as the single landmark for the
-// content between nav and footer (accessibility, skip-link targeting).
+// Root composition — stacks the sections for ONE page and keeps <main> as the
+// single landmark for the content between nav and footer (accessibility,
+// skip-link targeting).
+//
+// The site is a Vite multi-page app: index.html renders the home page, and
+// hackathons.html / events.html / posts.html each render this same App with a
+// `page` prop (see src/section.tsx). There is still no router and no state —
+// each URL is its own document, so navigation between them is plain links.
 //
 // On pointer devices the whole tree is wrapped in <Bubble> (Canvas UI's
 // cursor metaball effect): the wrapper fixes itself to the viewport and its
@@ -14,7 +18,7 @@
 // no cursor to trail, and Bubble is the page's only per-frame WebGL +
 // content-capture cost, so it never mounts on touch/small viewports.
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import Nav from './components/Nav';
 import Hero from './components/Hero';
 import Focus from './components/Focus';
@@ -22,9 +26,49 @@ import Systems from './components/Systems';
 import Research from './components/Research';
 import Stack from './components/Stack';
 import Certifications from './components/Certifications';
+import Hackathons from './components/Hackathons';
+import Events from './components/Events';
+import Posts from './components/Posts';
 import Footer from './components/Footer';
+import BottomNav from './components/BottomNav';
 import Bubble from './components/Bubble';
 import { useHashScroll, usePageScrollKeys } from './lib/scrollSurface';
+
+/** Which document this tree is: the home page, or one of the three section
+ *  pages the bottom pill links to. Read from the HTML file's `data-section`
+ *  by src/section.tsx. */
+export type PageId = 'home' | 'hackathons' | 'events' | 'posts';
+
+// The home page's sections, in page order — reading order == DOM order ==
+// visual order. Certifications is deliberately id-less (not a scroll-spy
+// target); Hero and the rest carry their own ids for Nav's spy.
+function HomeSections() {
+  return (
+    <>
+      <Hero />
+      <Focus />
+      <Systems />
+      <Research />
+      <Stack />
+      <Certifications />
+    </>
+  );
+}
+
+// The three section pages: one component each, keyed by PageId, so a page
+// renders exactly one of them — they never appear on the home page.
+const SECTION_PAGES = {
+  hackathons: Hackathons,
+  events: Events,
+  posts: Posts,
+} as const;
+
+/** Renders the body for a page: the full home stack, or the single section. */
+function PageContent({ page }: { page: PageId }): ReactNode {
+  if (page === 'home') return <HomeSections />;
+  const Section = SECTION_PAGES[page];
+  return <Section />;
+}
 
 // Phones, tablets and small windows: no cursor to trail (the effect's whole
 // point) and, if html-in-canvas is ever enabled on them, Bubble would add a
@@ -45,7 +89,7 @@ function useBubbleEnabled() {
   return enabled;
 }
 
-export default function App() {
+export default function App({ page = 'home' }: { page?: PageId }) {
   // Keep deep links (#section) landing on their target and Space/arrows/
   // Home/End scrolling working now that the surface div (not the document)
   // is the scroller — see lib/scrollSurface.ts.
@@ -59,18 +103,21 @@ export default function App() {
           scroll surface (index.css), not DOM: body's background isn't part of
           Bubble's captured subtree, and position:fixed layers scroll out of
           html-in-canvas captures. */}
-      <Nav />
+      {/* `base` makes the top pill's anchors cross documents on section pages:
+          'index.html#focus' navigates home, while '' keeps plain same-page
+          anchors (and smooth scrolling) on the home page. */}
+      <Nav base={page === 'home' ? '' : 'index.html'} />
       <main>
-        {/* Reading order == DOM order == visual order; each section is a
-            self-contained block with its own id used by Nav scroll-spy. */}
-        <Hero />
-        <Focus />
-        <Systems />
-        <Research />
-        <Stack />
-        <Certifications />
+        <PageContent page={page} />
       </main>
       <Footer />
+      {/* Last child of the scroll surface on purpose: sticky is constrained to
+          its containing block, so only this position lets the bottom pill
+          float at the viewport bottom for the whole page and settle at the
+          true document end (inside <main> it would ride up and vanish as soon
+          as the footer scrolled in). Its pane hangs UP from the sticky line,
+          over the footer's bottom padding — Footer's pb clears it. */}
+      <BottomNav />
     </>
   );
 

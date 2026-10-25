@@ -9,11 +9,18 @@
 //   1. the desktop pill (Glass lens + wordmark + numbered section links),
 //   2. the mobile hamburger button,
 //   3. the mobile drop-down menu, pre-mounted during idle time.
-// Behavior lives in three effects: scroll-spy with rAF-throttled updates,
-// mobile-breakpoint sync, and idle pre-arming of the menu (see each below).
-import { useState, useEffect, useMemo, useRef } from 'react';
+// Behavior: scroll-spy comes from the shared useScrollSpy hook (extracted
+// from this file's old Effect 1 — see lib/useScrollSpy.ts), plus two effects
+// here: mobile-breakpoint sync and idle pre-arming of the menu.
+import { useState, useEffect, useRef } from 'react';
 import { Glass } from '@samasante/liquid-glass';
-import { findScrollSurface } from '../lib/scrollSurface';
+import { useScrollSpy } from '../lib/useScrollSpy';
+import {
+  pillTint,
+  glassEdge,
+  MOBILE_QUERY,
+  pillOpticsFor,
+} from '../lib/pillStyle';
 
 // Inlined from lucide-react (Menu/X at size 20) — byte-identical markup to
 // what the library rendered, without pulling the whole package into vendor.
@@ -55,56 +62,56 @@ const links = [
   { label: 'Activities', href: '#research' },
   { label: 'Stack', href: '#stack' },
   // Deliberately only 4 entries: Certifications has no section id (not a
-  // scroll-spy target) and the footer's #connect is an external anchor, so
-  // neither belongs in the pill's numbered link row.
+  // scroll-spy target), the footer's #connect is an external anchor, and the
+  // post sections (/06–/08) belong to the BOTTOM pill (see BottomNav.tsx) —
+  // none of those belong in this pill's numbered link row.
 ];
 
-// Lens look for the floating nav glass: clear liquid glass rather than a
-// frosted slab. No frost and no white veil — the page stays sharp and reads
-// straight through the pill — with the material's default, gentle refraction
-// (library-default strength / bend / dispersion) so the background eases
-// through the contour with only a soft colour fringe. Link contrast comes
-// from the text colours, not from a milky backing.
-const pillOptics = { frost: 0, brightness: 0, strength: 0.05, bend: 0.45, dispersion: 0.32 };
-// The mobile drop-down is the same clear glass as the pill — no frost, no
-// veil, the same gentle default refraction — so the two read as one material
-// instead of a clear bar opening into a frosted panel.
-const menuOptics = { frost: 0, brightness: 0, strength: 0.05, bend: 0.45, dispersion: 0.32 };
+// Scroll-spy target ids in page order — the shared hook's expected shape.
+// On the section pages none of these elements exist (they live in the home
+// document), so Nav passes NO_IDS instead and the pill simply shows no active
+// link there — see the `base` prop.
+// The pill LINKS only the 4 above, but it must measure every section:
+// otherwise, while the reader is in a post section (/06–/08), the last linked
+// id (stack) would stay underlined even though this pill points at nothing
+// there. Measuring them all means `active` can become an id this pill has no
+// link for, so no link lights up — the correct "not one of my sections" state.
+const sectionIds = [
+  ...links.map((link) => link.href.slice(1)),
+  'hackathons',
+  'events',
+  'posts',
+];
 
-// Displacement-map resolution for phones (the Tailwind `md` breakpoint). The
-// map generator runs in O(mapSize²): at the default 512 every map costs ~90ms
-// of main thread under 4× CPU throttle — twice at load (the pill measures with
-// fallback-font metrics, then regenerates when Inter swaps in half a pixel
-// wider) and once per menu open. 256 still gives >2 map samples per device
-// pixel across the pill, so the refraction/frost/tint/brightness — the feel —
-// are unchanged; desktop keeps 512.
-const MOBILE_MAP_SIZE = 256;
-// rem-based to track Tailwind's md (48rem) exactly under non-16px roots.
-const MOBILE_QUERY = '(max-width: 47.9375rem)';
+// Stable empty list for section pages (a fresh [] per render would change the
+// hook's ids key every render).
+const NO_IDS: readonly string[] = [];
 
-// A trace of white body so the pill's silhouette survives over equally light
-// content; otherwise it's pure glass.
-const pillTint = { background: 'rgba(255, 255, 255, 0.06)' };
-// Same trace of white body as the pill — just enough for the panel's
-// silhouette over equally light content.
-const menuTint = { background: 'rgba(255, 255, 255, 0.06)' };
+// NOTE: no local menu-* glass constants. The drop-down was cleared to the
+// same look as the pill, so both <Glass> instances now take the shared
+// pillOptics/pillTint from lib/pillStyle — one material, one place to tune
+// it, and the two can't drift apart.
 
-const glassEdge =
-  'rounded-full border border-white/60 shadow-[0_12px_40px_-12px_rgba(32,30,27,0.18)]';
+// `base` is a document-relative prefix for every anchor this pill renders:
+//   ''             → plain same-page anchors (#focus) on the home page,
+//                    which the browser smooth-scrolls without a reload;
+//   'index.html'   → cross-document links (index.html#focus) from the three
+//                    section pages, whose targets only exist in the home
+//                    document.
+interface NavProps {
+  base?: string;
+}
 
-export default function Nav() {
+export default function Nav({ base = '' }: NavProps) {
   // menuOpen: user-toggled mobile menu visibility.
-  // active: current scroll-spy section id ("" near the top of the page).
   const [menuOpen, setMenuOpen] = useState(false);
-  const [active, setActive] = useState('');
-  // Scroll fires setActive ~60x/s while only a handful of section changes
-  // actually happen per pass. The ref bails out before React's dispatcher,
-  // so an unchanged section never queues work — we don't lean on React's
-  // value-equality eager-bailout (an implementation detail) for that.
-  const activeRef = useRef('');
   // Root nav element — scroll-spy walks up from it to find the page's scroll
   // surface (the Bubble content div), which differs per rendering mode.
   const navRef = useRef<HTMLElement>(null);
+  // active: current scroll-spy section id ("" near the top of the page). The
+  // rAF-throttled measure/compare logic lives in lib/useScrollSpy.ts — it was
+  // this component's Effect 1 and moved out so the bottom pill reuses it.
+  const active = useScrollSpy(base ? NO_IDS : sectionIds, navRef);
   const [isMobile, setIsMobile] = useState(
     () => typeof window !== 'undefined' && window.matchMedia(MOBILE_QUERY).matches
   );
@@ -112,95 +119,12 @@ export default function Nav() {
   // at least once — see the idle pre-mount effect below.
   const [menuArmed, setMenuArmed] = useState(false);
 
-  // Smaller displacement map on phones only — see MOBILE_MAP_SIZE above.
-  const pillGlassOptics = useMemo(
-    () => (isMobile ? { ...pillOptics, mapSize: MOBILE_MAP_SIZE } : pillOptics),
-    [isMobile]
-  );
-  const menuGlassOptics = useMemo(
-    () => (isMobile ? { ...menuOptics, mapSize: MOBILE_MAP_SIZE } : menuOptics),
-    [isMobile]
-  );
+  // Smaller displacement map on phones only — see MOBILE_MAP_SIZE in
+  // lib/pillStyle.ts. pillOpticsFor returns a stable object per breakpoint,
+  // so both <Glass> instances (pill and drop-down) share one optics identity.
+  const glassOptics = pillOpticsFor(isMobile);
 
-  // Effect 1 — scroll-spy. Section offsets and the scroll surface are
-  // measured once (and re-measured on resize/fonts-ready, since late-loading
-  // fonts shift layout), then every scroll event is coalesced into at most
-  // one rAF callback. The activation line sits at 35% of the viewport height
-  // so a section counts as "current" once it's comfortably past the top.
-  // The Bubble wrapper (see App) moves the page's scrolling from the document
-  // onto its content div, so: offsets come from offsetTop (sections' offset
-  // parent IS that content div, which keeps them in scroll coordinates), the
-  // position is read from the surface with a window fallback, and the scroll
-  // listener is registered in the capture phase — scroll events don't bubble,
-  // but capture sees the surface's scroll on its way down. `passive: true`
-  // keeps scrolling smooth; cleanup cancels the pending frame and removes
-  // both listeners (removeEventListener must repeat the capture flag).
-  useEffect(() => {
-    const ids = links.map((link) => link.href.slice(1));
-    let rafId = 0;
-    let offsets: number[] = [];
-    let surface: HTMLElement | null = null;
-
-    // (Re)read each target's offset within the scroll surface; 0 for missing
-    // elements so an unmapped id simply never wins the comparison below.
-    const measure = () => {
-      surface = navRef.current ? findScrollSurface(navRef.current) : null;
-      offsets = ids.map((id) => {
-        const el = document.getElementById(id);
-        return el ? el.offsetTop : 0;
-      });
-    };
-
-    // Pick the last section whose top has crossed the activation line —
-    // ids are in page order, so "last crossed" == "deepest one in view".
-    const onScroll = () => {
-      const pos =
-        (surface ? surface.scrollTop : window.scrollY) +
-        window.innerHeight * 0.35;
-      let current = '';
-      for (let i = 0; i < ids.length; i++) {
-        if (offsets[i] <= pos) current = ids[i];
-      }
-      if (current === activeRef.current) return;
-      activeRef.current = current;
-      setActive(current);
-    };
-
-    const handleScroll = () => {
-      cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(onScroll);
-    };
-
-    // Resize invalidates offsets AND the activation line, so remeasure
-    // inside the same rAF slot rather than only re-running onScroll.
-    const handleResize = () => {
-      cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(() => {
-        measure();
-        onScroll();
-      });
-    };
-
-    measure();
-    onScroll();
-    window.addEventListener('scroll', handleScroll, { passive: true, capture: true });
-    window.addEventListener('resize', handleResize, { passive: true });
-    // Web fonts swap in after first paint and move every section; remeasure
-    // once fonts settle. The rejection handler keeps a font error from
-    // becoming an unhandled rejection (offsets would just stay as measured).
-    const handleFontsReady = () => {
-      measure();
-      onScroll();
-    };
-    document.fonts?.ready.then(handleFontsReady, () => {});
-    return () => {
-      cancelAnimationFrame(rafId);
-      window.removeEventListener('scroll', handleScroll, true);
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
-
-  // Effect 2 — mobile breakpoint sync. Track the mobile breakpoint so the
+  // Effect 1 — mobile breakpoint sync. Track the mobile breakpoint so the
   // lens regenerates with the right map size when the viewport crosses it
   // (rotation, split-screen).
   useEffect(() => {
@@ -211,7 +135,7 @@ export default function Nav() {
     return () => mq.removeEventListener('change', onChange);
   }, []);
 
-  // Effect 3 — idle pre-mount of the closed menu. Pre-mount the closed menu
+  // Effect 2 — idle pre-mount of the closed menu. Pre-mount the closed menu
   // so its displacement map is generated during idle time, after fonts settle,
   // instead of on the tap that opens it — a fresh generation stalls that open
   // by ~100ms under 4× throttle. Hidden with `visibility` (not `display`) so
@@ -255,11 +179,11 @@ export default function Nav() {
         <Glass
           className={`pointer-events-auto ${glassEdge}`}
           style={pillTint}
-          optics={pillGlassOptics}
+          optics={glassOptics}
         >
           <div className="flex items-center gap-6 px-5 py-2.5 sm:gap-8 sm:px-6 sm:py-3">
             <a
-              href="#hero"
+              href={`${base}#hero`}
               className="text-lg font-semibold tracking-[-0.01em] text-ink hover:text-bronze-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-bronze-500 rounded-sm transition-colors duration-500 ease-zen"
             >
               Siddhesh Kadlag
@@ -275,7 +199,7 @@ export default function Nav() {
                 return (
                   <a
                     key={link.href}
-                    href={link.href}
+                    href={`${base}${link.href}`}
                     className={`group relative font-mono text-[11px] tracking-[0.18em] uppercase focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-bronze-500 rounded-sm transition-colors duration-500 ease-zen after:content-[''] after:absolute after:bottom-[-5px] after:left-0 after:h-px after:bg-bronze-500 after:transition-[width] after:duration-500 after:ease-zen ${isActive ? 'text-ink after:w-full' : 'text-espresso-600 hover:text-ink after:w-0 group-hover:after:w-full'}`}
                   >
                     <span className="text-bronze-500 mr-1.5">0{i + 1}.</span>
@@ -312,14 +236,14 @@ export default function Nav() {
         >
           <Glass
             className={`pointer-events-auto rounded-3xl border border-white/60 shadow-[0_16px_48px_-16px_rgba(32,30,27,0.22)]`}
-            style={menuTint}
-            optics={menuGlassOptics}
+            style={pillTint}
+            optics={glassOptics}
           >
             <div className="flex flex-col gap-4 px-6 py-5 min-w-[13rem]">
               {links.map((link, i) => (
                 <a
                   key={link.href}
-                  href={link.href}
+                  href={`${base}${link.href}`}
                   onClick={() => setMenuOpen(false)}
                   className="font-mono text-[11px] tracking-[0.18em] uppercase text-espresso-700 hover:text-bronze-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-bronze-500 transition-colors duration-300 ease-zen"
                 >

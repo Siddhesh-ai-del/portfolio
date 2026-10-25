@@ -8,8 +8,12 @@ export default function Footer() {
   // stale year after a long-lived tab/CDN cache.
   const year = new Date().getFullYear();
 
+  // pb-20 / md:pb-24 clears the floating bottom pill: its pane hangs ~60px
+  // (pill + 16/20px inset) above the sticky line at the document end, which
+  // lands on this footer's bottom padding. The old pb-12/md:pb-16 was enough
+  // to sit under a pill that didn't exist yet.
   return (
-    <footer id="connect" className="pt-24 md:pt-36 pb-12 md:pb-16 px-6 sm:px-8">
+    <footer id="connect" className="pt-24 md:pt-36 pb-20 md:pb-24 px-6 sm:px-8">
       <div className="max-w-7xl mx-auto">
         {/* CTA row: 8-col statement, 4-col link stack (right-aligned on md+,
             both ends share a top hairline for the print-rule look). */}
