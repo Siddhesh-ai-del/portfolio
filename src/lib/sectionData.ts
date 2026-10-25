@@ -1,14 +1,15 @@
 // Data for the three post sections (/06 Hackathons, /07 Events, /08 Posts).
 //
-// PLACEHOLDER CONTENT — every entry below is scaffolding: the category chip,
-// title and right-hand detail are all meant to be replaced with real items.
-// Each array feeds one section via its component in src/components, and each
-// entry has the same shape as Research's `researchItems`, so the rows render
+// Each array feeds one section via its component in src/components, and the
+// base entry shape matches Research's `researchItems`, so rows render
 // identically (mono chip → title → right-aligned detail).
 //
-// To fill these in: edit the arrays here (one place, no component changes
-// needed) and keep 2–4 entries — the section renders whatever is in the array,
-// including an empty one (header only).
+// Events carries REAL content (IdeaFusion 2026–27) using the optional
+// "featured" fields below — image / description / facts / gallery — which
+// SectionList renders as an inline block under the row header. Hackathons and
+// Posts are still PLACEHOLDER scaffolding: replace their entries with real
+// items the same way, no component changes needed. The section renders
+// whatever is in the array, including an empty one (header only).
 export interface SectionItem {
   /** Mono category chip in the left column (e.g. Winner, Talk, Article). */
   type: string;
@@ -16,6 +17,25 @@ export interface SectionItem {
   title: string;
   /** Right-aligned qualifier (year · team · result). */
   detail: string;
+  /** Long-form copy for a featured row, under the header columns. */
+  description?: string;
+  /** Mono fact tags (hairline chips) under the description. */
+  facts?: readonly string[];
+  /** Banner image shown beside the description (featured rows). */
+  image?: SectionImage;
+  /** Supporting photos rendered as a gallery under the featured block. */
+  gallery?: readonly SectionImage[];
+}
+
+/** An image on a featured row. */
+export interface SectionImage {
+  /** Public URL (files live in public/events/). */
+  src: string;
+  /** Describes the photo for screen readers — never a filename. */
+  alt: string;
+  /** Cover-crop anchor. Chosen per photo so the subject survives the crop;
+   *  must stay a literal Tailwind class (scanned from this file). */
+  position?: 'object-top' | 'object-center' | 'object-bottom';
 }
 
 /** /06 Hackathons — PLACEHOLDER rows. */
@@ -25,11 +45,52 @@ export const hackathonItems: SectionItem[] = [
   { type: 'Participant', title: 'Third hackathon (placeholder)', detail: '2025 · team' },
 ];
 
-/** /07 Events — PLACEHOLDER rows (talks, meetups, conferences). */
+/** /07 Events — real entries. IdeaFusion is a featured row (banner,
+ *  description, fact tags and a photo gallery under the header). */
 export const eventItems: SectionItem[] = [
-  { type: 'Talk', title: 'First talk (placeholder)', detail: '2026 · venue' },
-  { type: 'Workshop', title: 'Second workshop (placeholder)', detail: '2025 · duration' },
-  { type: 'Attendee', title: 'Third event (placeholder)', detail: '2025 · city' },
+  {
+    type: 'Ideathon',
+    title: 'IdeaFusion 2026–27',
+    detail: '2026–27 · IEEE · Pune',
+    description:
+      'IdeaFusion 2026–27 is an innovation-focused ideathon organized by the ' +
+      'IEEE Student Branch in association with the IEEE Pune Section. It asks ' +
+      'students for practical, technology-driven solutions to real-world ' +
+      'problems across HealthTech, EdTech, FinTech, AgriTech, MedTech and ' +
+      'Open Innovation — both software and hardware ideas are welcome. ' +
+      'Participation is in-person in Pune: every team gets 7 minutes to ' +
+      'present its idea, followed by 3 minutes of Q&A with the judges.',
+    facts: [
+      'IEEE Student Branch × IEEE Pune Section',
+      'In-person · Pune',
+      '7 min pitch + 3 min Q&A',
+      'Software & hardware',
+    ],
+    image: {
+      src: '/events/ideafusion-banner.jpeg',
+      alt: 'IdeaFusion 2026–27 event banner',
+      position: 'object-center',
+    },
+    gallery: [
+      {
+        // Shot from the audience: the slide and presenter sit in the top
+        // third of a tall portrait — anchor top or the crop loses them.
+        src: '/events/ideafusion-presenting.jpg',
+        alt: 'Team presenting their RetinaScan AI idea on stage at IdeaFusion 2026–27',
+        position: 'object-top',
+      },
+      {
+        src: '/events/ideafusion-judges.jpg',
+        alt: 'The team holding their certificates with the judges at IdeaFusion 2026–27',
+        position: 'object-center',
+      },
+      {
+        src: '/events/ideafusion-certificates.jpg',
+        alt: 'Close-up of the IdeaFusion 2026–27 certificates',
+        position: 'object-center',
+      },
+    ],
+  },
 ];
 
 /** /08 Posts — PLACEHOLDER rows (articles, write-ups, notes). */
