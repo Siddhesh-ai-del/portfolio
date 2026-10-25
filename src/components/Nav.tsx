@@ -1,6 +1,11 @@
-// Nav — fixed floating navigation, always on top (z-50) and
-// pointer-events-none at the <nav> level so only the glass pill and mobile
-// menu itself intercept clicks/pointer input. Composed of three pieces:
+// Nav — floating navigation pinned to the top of the scroll surface, always
+// on top (z-50) and pointer-events-none at the <nav> level so only the glass
+// pill and mobile menu itself intercept clicks/pointer input. `sticky` with
+// a zero-height box instead of `fixed`: html-in-canvas capture renders
+// position:fixed descendants at their scroll-origin offset, which would
+// scroll the captured nav out of view — sticky is painted where users
+// actually see it, and h-0 keeps the pill out of the content's flow.
+// Composed of three pieces:
 //   1. the desktop pill (Glass lens + wordmark + numbered section links),
 //   2. the mobile hamburger button,
 //   3. the mobile drop-down menu, pre-mounted during idle time.
@@ -8,6 +13,7 @@
 // mobile-breakpoint sync, and idle pre-arming of the menu (see each below).
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { Glass } from '@samasante/liquid-glass';
+import { findScrollSurface } from '../lib/scrollSurface';
 
 // Inlined from lucide-react (Menu/X at size 20) — byte-identical markup to
 // what the library rendered, without pulling the whole package into vendor.
@@ -96,6 +102,9 @@ export default function Nav() {
   // so an unchanged section never queues work — we don't lean on React's
   // value-equality eager-bailout (an implementation detail) for that.
   const activeRef = useRef('');
+  // Root nav element — scroll-spy walks up from it to find the page's scroll
+  // surface (the Bubble content div), which differs per rendering mode.
+  const navRef = useRef<HTMLElement>(null);
   const [isMobile, setIsMobile] = useState(
     () => typeof window !== 'undefined' && window.matchMedia(MOBILE_QUERY).matches
   );
@@ -113,20 +122,29 @@ export default function Nav() {
     [isMobile]
   );
 
-  // Effect 1 — scroll-spy. Section offsets are measured once (and re-measured
-  // on resize/fonts-ready, since late-loading fonts shift layout), then every
-  // scroll event is coalesced into at most one rAF callback. The activation
-  // line sits at 35% of the viewport height so a section counts as "current"
-  // once it's comfortably past the top. `passive: true` keeps scrolling
-  // smooth; cleanup cancels the pending frame and removes both listeners.
+  // Effect 1 — scroll-spy. Section offsets and the scroll surface are
+  // measured once (and re-measured on resize/fonts-ready, since late-loading
+  // fonts shift layout), then every scroll event is coalesced into at most
+  // one rAF callback. The activation line sits at 35% of the viewport height
+  // so a section counts as "current" once it's comfortably past the top.
+  // The Bubble wrapper (see App) moves the page's scrolling from the document
+  // onto its content div, so: offsets come from offsetTop (sections' offset
+  // parent IS that content div, which keeps them in scroll coordinates), the
+  // position is read from the surface with a window fallback, and the scroll
+  // listener is registered in the capture phase — scroll events don't bubble,
+  // but capture sees the surface's scroll on its way down. `passive: true`
+  // keeps scrolling smooth; cleanup cancels the pending frame and removes
+  // both listeners (removeEventListener must repeat the capture flag).
   useEffect(() => {
     const ids = links.map((link) => link.href.slice(1));
     let rafId = 0;
     let offsets: number[] = [];
+    let surface: HTMLElement | null = null;
 
-    // (Re)read each target's document offset; 0 for missing elements so an
-    // unmapped id simply never wins the comparison below.
+    // (Re)read each target's offset within the scroll surface; 0 for missing
+    // elements so an unmapped id simply never wins the comparison below.
     const measure = () => {
+      surface = navRef.current ? findScrollSurface(navRef.current) : null;
       offsets = ids.map((id) => {
         const el = document.getElementById(id);
         return el ? el.offsetTop : 0;
@@ -136,7 +154,9 @@ export default function Nav() {
     // Pick the last section whose top has crossed the activation line —
     // ids are in page order, so "last crossed" == "deepest one in view".
     const onScroll = () => {
-      const pos = window.scrollY + window.innerHeight * 0.35;
+      const pos =
+        (surface ? surface.scrollTop : window.scrollY) +
+        window.innerHeight * 0.35;
       let current = '';
       for (let i = 0; i < ids.length; i++) {
         if (offsets[i] <= pos) current = ids[i];
@@ -163,7 +183,7 @@ export default function Nav() {
 
     measure();
     onScroll();
-    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('scroll', handleScroll, { passive: true, capture: true });
     window.addEventListener('resize', handleResize, { passive: true });
     // Web fonts swap in after first paint and move every section; remeasure
     // once fonts settle. The rejection handler keeps a font error from
@@ -175,7 +195,7 @@ export default function Nav() {
     document.fonts?.ready.then(handleFontsReady, () => {});
     return () => {
       cancelAnimationFrame(rafId);
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('scroll', handleScroll, true);
       window.removeEventListener('resize', handleResize);
     };
   }, []);
@@ -227,7 +247,8 @@ export default function Nav() {
 
   return (
     <nav
-      className="fixed top-0 left-0 right-0 z-50 pointer-events-none"
+      ref={navRef}
+      className="sticky top-0 z-50 h-0 pointer-events-none"
       aria-label="Main navigation"
     >
       <div className="flex justify-center px-4 pt-4 sm:pt-5">

@@ -90,6 +90,44 @@ body {
   overflow-x: hidden;
 }
 
+/* Bubble scroll surface — the site-bubble wrapper fixes itself to the
+   viewport and its content div (inline `overflow: auto` from the component)
+   is what actually scrolls the page, in all three shapes App renders:
+     html-in-canvas mode: .site-bubble > canvas > div
+     fallback mode:       .site-bubble > div
+     mobile (no Bubble):  .site-bubble > div  (plain mirror of the fallback)
+   Anchor smoothness moves here because `html { scroll-behavior }` only
+   affects the document scroller (which no longer scrolls), and the
+   overflow-x guard is re-applied — the inline `overflow: auto` would
+   otherwise expose a horizontal scrollbar for off-canvas decorations that
+   the old body rule used to hide. The reduced-motion block below still
+   outranks both via its `scroll-behavior: auto !important` on `*`.
+
+   The ambient page layers that used to be LiquidBackground's fixed divs
+   (white hero wash, paper grain, bronze corner wash) now live here as real
+   backgrounds on the surface, for two reasons: body's background is NOT part
+   of Bubble's captured subtree — without this the refraction texture is
+   transparent and droplets refract black — and position:fixed descendants
+   are captured at their scroll-origin offset in html-in-canvas mode, which
+   scrolled the old layers out of the capture. Layer order top → bottom is
+   bronze wash, grain, white wash, paper — matching the old z-[-1]/[-2]/[-3]
+   stack. The washes are sized to one viewport and anchored to the content's
+   top/bottom instead of being re-painted per scroll frame (the perf note
+   LiquidBackground carried: no per-frame blend or fixed repaint). */
+.site-bubble > div,
+.site-bubble > canvas > div {
+  scroll-behavior: smooth;
+  overflow-x: hidden !important;
+  background-color: #FAF7F0;
+  background-image:
+    radial-gradient(140% 120% at 85% 110%, rgba(161, 94, 44, 0.05) 0%, transparent 55%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E"),
+    radial-gradient(120% 90% at 50% 0%, rgba(255, 255, 255, 0.6) 0%, rgba(250, 247, 240, 0) 55%);
+  background-size: 100vw 100vh, 180px 180px, 100vw 100vh;
+  background-position: right bottom, 0 0, top center;
+  background-repeat: no-repeat, repeat, no-repeat;
+}
+
 /* kern/liga/calt are already on by default (and optimizeLegibility below
    forces them anyway) — explicit font-feature-settings only made these
    elements take the non-default shaping path. ss01/tnum/zero below are NOT
@@ -177,10 +215,8 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-/* Paper grain — inline SVG fractal-noise tile (no network request), sized
-   180×180 so it repeats seamlessly; consumed by LiquidBackground's z-[-2]
-   layer at ~4.5% opacity. */
-.grain {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size: 180px 180px;
-}
+/* Paper grain moved: the fractal-noise tile (and the two ambient washes)
+   now live as background layers on the Bubble scroll surface near the top
+   of this file, so the captured page pixels include them. The old
+   LiquidBackground component (three position:fixed layers) is gone — fixed
+   descendants scroll out of html-in-canvas captures. */
