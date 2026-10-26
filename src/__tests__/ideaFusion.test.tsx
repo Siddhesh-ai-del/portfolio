@@ -16,13 +16,24 @@ afterEach(() => {
 });
 
 describe('Events — IdeaFusion 2026–27', () => {
-  it('renders the row header: chip, title and detail', () => {
+  it('renders the row header: placement chip, title and detail', () => {
     render(<Events />);
     expect(
       screen.getByRole('heading', { level: 3, name: 'IdeaFusion 2026–27' })
     ).toBeInTheDocument();
-    expect(screen.getByText('Ideathon')).toBeInTheDocument();
+    // The result is the row's headline attribute — same convention the
+    // Hackathons rows use for Winner / Finalist.
+    expect(screen.getByText('2nd Place')).toBeInTheDocument();
+    // ...so the category chip no longer carries the event type.
+    expect(screen.queryByText('Ideathon')).toBeNull();
     expect(screen.getByText('2026–27 · IEEE · Pune')).toBeInTheDocument();
+  });
+
+  it('states the result in the copy, with the idea that earned it', () => {
+    render(<Events />);
+    const text = document.body.textContent ?? '';
+    expect(text).toMatch(/placed second/i);
+    expect(text).toContain('RetinaScan AI');
   });
 
   it('shows the banner image with a descriptive alt and lazy loading', () => {

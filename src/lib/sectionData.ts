@@ -60,7 +60,9 @@ export const hackathonItems: SectionItem[] = [
  *  description, fact tags and a photo gallery under the header). */
 export const eventItems: SectionItem[] = [
   {
-    type: 'Ideathon',
+    // Chip carries the result (the Hackathons rows' Winner/Finalist
+    // convention) — the event type stays in the copy and on the banner.
+    type: '2nd Place',
     title: 'IdeaFusion 2026–27',
     detail: '2026–27 · IEEE · Pune',
     description:
@@ -70,7 +72,9 @@ export const eventItems: SectionItem[] = [
       'problems across HealthTech, EdTech, FinTech, AgriTech, MedTech and ' +
       'Open Innovation — both software and hardware ideas are welcome. ' +
       'Participation is in-person in Pune: every team gets 7 minutes to ' +
-      'present its idea, followed by 3 minutes of Q&A with the judges.',
+      'present its idea, followed by 3 minutes of Q&A with the judges. ' +
+      'Team IRIS placed second with RetinaScan AI, a diabetic retinopathy ' +
+      'screening idea.',
     facts: [
       'IEEE Student Branch × IEEE Pune Section',
       'In-person · Pune',
