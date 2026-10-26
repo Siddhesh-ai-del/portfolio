@@ -57,9 +57,13 @@ describe.each(sections)('$name section', ({ Component, id, eyebrow, title, items
     const headings = screen.getAllByRole('heading', { level: 3 });
     expect(headings).toHaveLength(items.length);
     for (const item of items) {
-      expect(screen.getByText(item.title)).toBeInTheDocument();
-      expect(screen.getByText(item.detail)).toBeInTheDocument();
-      expect(screen.getByText(item.type)).toBeInTheDocument();
+      // Asserted WITHIN the item's own row: chips may repeat across rows
+      // (both Events entries carry "2nd Place"), which makes a page-wide
+      // getByText ambiguous.
+      const h3 = screen.getByRole('heading', { level: 3, name: item.title });
+      const rowEl = h3.closest('.group') as HTMLElement;
+      expect(within(rowEl).getByText(item.type)).toBeInTheDocument();
+      expect(within(rowEl).getByText(item.detail)).toBeInTheDocument();
     }
   });
 

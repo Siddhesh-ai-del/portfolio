@@ -4,12 +4,13 @@
 // base entry shape matches Research's `researchItems`, so rows render
 // identically (mono chip → title → right-aligned detail).
 //
-// Events carries REAL content (IdeaFusion 2026–27) using the optional
-// "featured" fields below — image / description / facts / gallery — which
-// SectionList renders as an inline block under the row header. Hackathons and
-// Posts are still PLACEHOLDER scaffolding: replace their entries with real
-// items the same way, no component changes needed. The section renders
-// whatever is in the array, including an empty one (header only).
+// Events carries REAL content (IdeaFusion 2026–27 and TechnoFest 2026)
+// using the optional "featured" fields below — image / description / facts /
+// team / gallery — which SectionList renders as an inline block under the row
+// header. Hackathons and Posts are still PLACEHOLDER scaffolding: replace
+// their entries with real items the same way, no component changes needed.
+// The section renders whatever is in the array, including an empty one
+// (header only).
 export interface SectionItem {
   /** Mono category chip in the left column (e.g. Winner, Talk, Article). */
   type: string;
@@ -39,6 +40,10 @@ export interface SectionImage {
    *  Must stay a literal Tailwind class (scanned from this file). Photos
    *  that are already the tile ratio don't need it. */
   position?: 'object-top' | 'object-center' | 'object-bottom';
+  /** Tile ratio when the photo isn't 3:2 — e.g. portrait people shots,
+   *  which a landscape tile would crop the story out of. Literal Tailwind
+   *  class, scanned from this file; defaults to 'aspect-[3/2]'. */
+  ratio?: 'aspect-[3/2]' | 'aspect-[4/5]';
 }
 
 /** A team credit: name plus members, each with year/branch. */
@@ -112,6 +117,36 @@ export const eventItems: SectionItem[] = [
         src: '/events/ideafusion-certificates.jpg',
         alt: 'Close-up of the IdeaFusion 2026–27 certificates',
         position: 'object-center',
+      },
+    ],
+  },
+  {
+    // Facts from the certificate visible in the trophy photo: SKH TechnoFest
+    // 2026, national-level symposium, Late G. N. Sapkal College of
+    // Engineering (Sapkal Knowledge Hub, Anjaneri, Nashik), 2nd position in
+    // AI Prompting (Prompt-Craft), 18 April 2026.
+    type: '2nd Place',
+    title: 'TechnoFest 2026',
+    detail: '2026 · Prompt engineering · Nashik',
+    description:
+      'SKH TechnoFest 2026 is a national-level technical symposium hosted ' +
+      'by Late G. N. Sapkal College of Engineering at Sapkal Knowledge Hub, ' +
+      'Anjaneri (Nashik). Competing as a first-year student, Siddhesh took ' +
+      '2nd place in the AI Prompting (Prompt-Craft) event on April 18, 2026.',
+    facts: ['National-level symposium', 'Prompt engineering', 'First-year entrant'],
+    gallery: [
+      {
+        // Portrait people-and-award shots: 4:5 tiles keep the face, trophy
+        // AND certificate in frame (a 3:2 band would force one of them out).
+        // Both files are pre-cropped to an exact 4:5, so no anchor is needed.
+        src: '/events/technofest-trophy.jpg',
+        alt: 'Siddhesh holding the TechnoFest 2026 trophy and his 2nd-position certificate',
+        ratio: 'aspect-[4/5]',
+      },
+      {
+        src: '/events/technofest-handover.jpg',
+        alt: 'Receiving the certificate from the Principal and HOD at TechnoFest 2026',
+        ratio: 'aspect-[4/5]',
       },
     ],
   },

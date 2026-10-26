@@ -69,6 +69,13 @@ export default function SectionList({
             const textSpan = item.image
               ? 'md:col-span-5'
               : 'md:col-start-3 md:col-span-9';
+            // An odd photo count leaves a half-empty mobile row, so the last
+            // tile takes the full row there; an even count (e.g. TechnoFest's
+            // two portraits) already pairs up and stays untouched.
+            const oddGallery = (item.gallery?.length ?? 0) % 2 === 1;
+            const lastTileSpan = oddGallery
+              ? 'last:col-span-2 md:last:col-span-1'
+              : '';
             return (
               // Stagger: i * 40ms — Research's ladder, the quickest on the page,
               // because these rows are short one-liners.
@@ -160,10 +167,10 @@ export default function SectionList({
                         </div>
                       )}
                       {item.gallery && (
-                        // Cover-cropped to a uniform 3:2 so the strip reads as
-                        // one line; `position` per photo keeps the subject in
-                        // frame. On mobile (2 cols) the last photo takes the
-                        // full row instead of sitting half-empty.
+                        // Cover-cropped to a uniform tile ratio so the strip
+                        // reads as one line; `ratio` lets portrait entries
+                        // use 4:5 instead of the 3:2 default, and `position`
+                        // anchors any photo whose own ratio still differs.
                         <div className="md:col-start-3 md:col-span-10 grid grid-cols-2 md:grid-cols-3 gap-3">
                           {item.gallery.map((shot) => (
                             <img
@@ -172,7 +179,7 @@ export default function SectionList({
                               alt={shot.alt}
                               loading="lazy"
                               decoding="async"
-                              className={`w-full aspect-[3/2] object-cover border border-hairline last:col-span-2 md:last:col-span-1 ${shot.position ?? 'object-center'}`}
+                              className={`w-full ${shot.ratio ?? 'aspect-[3/2]'} object-cover border border-hairline ${lastTileSpan} ${shot.position ?? 'object-center'}`}
                             />
                           ))}
                         </div>

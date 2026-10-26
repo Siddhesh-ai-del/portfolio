@@ -29,3 +29,4 @@ dist-ssr
 # Raw event media dropped in by hand — processed/compressed copies live in
 # public/events/ (the 70MB source video must never reach the repo or Vercel).
 IdeaFution/
+Prompt Enginnering/
