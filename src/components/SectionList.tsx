@@ -61,7 +61,7 @@ export default function SectionList({
             // A row is "featured" when it carries media or copy beyond the
             // chip/title/detail triple; plain rows render exactly as before.
             const featured = Boolean(
-              item.image || item.description || item.facts || item.gallery
+              item.image || item.description || item.facts || item.team || item.gallery
             );
             // With a banner, the text column fills the half beside it (the
             // auto-placer continues at col 8); without one it indents to the
@@ -118,12 +118,32 @@ export default function SectionList({
                           />
                         </figure>
                       )}
-                      {(item.description || item.facts) && (
+                      {(item.description || item.facts || item.team) && (
                         <div className={textSpan}>
                           {item.description && (
                             <p className="text-base md:text-lg text-espresso-600 leading-[1.75] max-w-[62ch]">
                               {item.description}
                             </p>
+                          )}
+                          {item.team && (
+                            // Team credit — its own hairline-separated block so
+                            // the roster reads as a distinct fact, not part of
+                            // the event description.
+                            <div className="mt-5 border-t border-hairline pt-4">
+                              <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-bronze-500">
+                                Team {item.team.name}
+                              </span>
+                              <ul className="mt-2 space-y-1">
+                                {item.team.members.map((member) => (
+                                  <li
+                                    key={member}
+                                    className="text-sm text-espresso-600 leading-relaxed"
+                                  >
+                                    {member}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
                           )}
                           {item.facts && (
                             <ul className="mt-5 flex flex-wrap gap-2">

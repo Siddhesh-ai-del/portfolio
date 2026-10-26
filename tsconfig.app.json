@@ -7,7 +7,7 @@
     "target": "es2023",
     "lib": ["ES2023", "DOM"],
     "module": "esnext",
-    "types": ["vite/client"],
+    "types": ["vite/client", "node"], // node: tests under src/ read asset files (fs/path/process)
     "allowArbitraryExtensions": true,
     "skipLibCheck": true,
 

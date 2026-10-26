@@ -65,9 +65,14 @@ describe.each(sections)('$name section', ({ Component, id, eyebrow, title, items
 
   it('keeps the shared hairline list styling', () => {
     const { container } = render(<Component />);
-    // List container carries the top rule; every row a bottom rule.
-    expect(container.querySelectorAll('.border-t.border-hairline')).toHaveLength(1);
-    expect(container.querySelectorAll('.border-b.border-hairline')).toHaveLength(
+    // List wrapper (direct child of the header container) carries the top
+    // rule; every row a bottom rule. Scoped structurally so a featured row's
+    // inner hairlines (team divider) don't skew a raw class count.
+    const wrapper = container.querySelector(
+      'section > div > .border-t.border-hairline'
+    );
+    expect(wrapper).not.toBeNull();
+    expect(wrapper?.querySelectorAll('.border-b.border-hairline')).toHaveLength(
       items.length
     );
   });

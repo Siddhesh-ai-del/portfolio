@@ -21,6 +21,8 @@ export interface SectionItem {
   description?: string;
   /** Mono fact tags (hairline chips) under the description. */
   facts?: readonly string[];
+  /** Team credit (name + members) between the copy and the fact tags. */
+  team?: SectionTeam;
   /** Banner image shown beside the description (featured rows). */
   image?: SectionImage;
   /** Supporting photos rendered as a gallery under the featured block. */
@@ -33,9 +35,18 @@ export interface SectionImage {
   src: string;
   /** Describes the photo for screen readers — never a filename. */
   alt: string;
-  /** Cover-crop anchor. Chosen per photo so the subject survives the crop;
-   *  must stay a literal Tailwind class (scanned from this file). */
+  /** Cover-crop anchor for images whose own ratio differs from the tile's.
+   *  Must stay a literal Tailwind class (scanned from this file). Photos
+   *  that are already the tile ratio don't need it. */
   position?: 'object-top' | 'object-center' | 'object-bottom';
+}
+
+/** A team credit: name plus members, each with year/branch. */
+export interface SectionTeam {
+  /** Rendered as "Team <name>". */
+  name: string;
+  /** e.g. "Siddhesh V Kadlag — SE AIDS". */
+  members: readonly string[];
 }
 
 /** /06 Hackathons — PLACEHOLDER rows. */
@@ -66,6 +77,14 @@ export const eventItems: SectionItem[] = [
       '7 min pitch + 3 min Q&A',
       'Software & hardware',
     ],
+    team: {
+      name: 'IRIS',
+      members: [
+        'Siddhesh V Kadlag — SE AIDS',
+        'Harshal R Pawar — SE CE',
+        'Prachi Kale — SE AIDS',
+      ],
+    },
     image: {
       src: '/events/ideafusion-banner.jpeg',
       alt: 'IdeaFusion 2026–27 event banner',
@@ -73,11 +92,12 @@ export const eventItems: SectionItem[] = [
     },
     gallery: [
       {
-        // Shot from the audience: the slide and presenter sit in the top
-        // third of a tall portrait — anchor top or the crop loses them.
+        // Pre-cropped to the tile's exact 3:2 from the full portrait, framed
+        // on the slide + presenter (the ceiling above them is gone — anchoring
+        // the tall original with object-top used to show nothing but that).
         src: '/events/ideafusion-presenting.jpg',
         alt: 'Team presenting their RetinaScan AI idea on stage at IdeaFusion 2026–27',
-        position: 'object-top',
+        position: 'object-center',
       },
       {
         src: '/events/ideafusion-judges.jpg',
